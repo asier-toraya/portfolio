@@ -66,8 +66,8 @@ function WriteupGroup({ title, entries }) {
         ) : (
           <article className="writeup-card writeup-card--empty">
             <div className="writeup-card__body">
-              <h3>Próximamente</h3>
-              <p>Esta categoría todavía no tiene write-ups publicados.</p>
+              <h3>Proximamente</h3>
+              <p>Esta categoria todavia no tiene write-ups publicados.</p>
             </div>
           </article>
         )}
@@ -82,11 +82,38 @@ function WriteupGroup({ title, entries }) {
 function HomePage() {
   const windowsWriteUps = getWriteUpsByPlatform("Windows");
   const linuxWriteUps = getWriteUpsByPlatform("Linux");
+  const formationItems = [
+    {
+      title: "Hacking Etico",
+      summary: "Pentesting para detectar vulnerabilidades en sistemas y redes con enfoque practico y controlado.",
+    },
+    {
+      title: "Incidentes de Ciberseguridad",
+      summary: "Gestion y respuesta ante eventos de seguridad, con analisis de riesgos y planes de actuacion.",
+    },
+    {
+      title: "Puesta en Produccion Segura",
+      summary: "Despliegue seguro de aplicaciones y servicios con foco en validacion y reduccion de vulnerabilidades.",
+    },
+    {
+      title: "Analisis Forense",
+      summary: "Adquisicion y estudio de evidencias digitales para investigacion, preservacion y analisis tecnico.",
+    },
+    {
+      title: "Bastionado de Redes y Sistemas",
+      summary: "Reduccion de superficie de ataque mediante configuraciones seguras, segmentacion y monitorizacion.",
+    },
+    {
+      title: "Normativa de Ciberseguridad",
+      summary: "Aplicacion de marcos legales y normativos para mantener el cumplimiento y la alineacion con estandares de seguridad.",
+    },
+  ];
 
   const placeholderEntry = (id, platform) => ({
     slug: `placeholder-${id}-${platform.toLowerCase()}`,
-    title: "Próximamente",
-    summary: "Este write-up está en fase de redacción y se publicará próximamente.",
+    href: null,
+    title: "Proximamente",
+    summary: "Este write-up esta en fase de redaccion y se publicara proximamente.",
     platform,
     year: "2026",
     tags: [],
@@ -117,37 +144,44 @@ function HomePage() {
 
         <section className="section section--experience">
           <div className="chip">EXPERIENCIA LABORAL</div>
+
           <div className="experience-list">
             <article className="experience-item">
               <div className="experience-header">
-                <h3>Analista de Ciberseguridad (Junior)</h3>
-                <span className="experience-date">2025 — ACTUALIDAD</span>
+                <h3>Desarrollador web (Full Stack)</h3>
+                <span className="experience-date">2024</span>
               </div>
-              <p className="experience-company">Empresa de Tecnología S.A.</p>
+              <p className="experience-company">Nytelweb</p>
               <p className="experience-desc">
-                Monitorización de eventos de seguridad, gestión de alertas en SOC y soporte en auditorías internas.
+                - Desarrollo y evolución de aplicaciones web empresariales. <br />
+                - Resolución de incidencias funcionales y técnicas para mantener la continuidad
+                operativa. <br />
+                - Mejoras de usabilidad y rendimiento
               </p>
             </article>
 
             <article className="experience-item">
               <div className="experience-header">
-                <h3>Técnico de Sistemas / Prácticas</h3>
-                <span className="experience-date">2024 — 2025</span>
+                <h3>Desarrollador web (Front End)</h3>
+                <span className="experience-date">2022 - 2023</span>
               </div>
-              <p className="experience-company">Servicios Informáticos Locales</p>
+              <p className="experience-company">Bosonit</p>
               <p className="experience-desc">
-                Mantenimiento de infraestructura de red, bastionado de servidores Windows/Linux y gestión de backups.
+                - Mantenimiento evolutivo de aplicaciones web corporativas. <br />
+                - Corrección de incidencias y ajustes funcionales en entorno productivo. <br />
               </p>
             </article>
 
             <article className="experience-item">
               <div className="experience-header">
-                <h3>Desarrollador Web Junior</h3>
-                <span className="experience-date">2023 — 2024</span>
+                <h3>Auxiliar de soporte TI y Artilleria</h3>
+                <span className="experience-date">2017 - 2021</span>
               </div>
-              <p className="experience-company">Agencia Digital Creative</p>
+              <p className="experience-company">Ministerio de Defensa</p>
               <p className="experience-desc">
-                Desarrollo de interfaces con React y despliegue de microservicios, con foco en la seguridad del código.
+                - Gestión y resolución de incidencias en entorno institucional. <br />
+                - Diagnóstico técnico y recuperación de servicio en puestos y sistemas. <br />
+                - Análisis de fallos en equipos y servicios para identificar la causa del problema. <br />
               </p>
             </article>
           </div>
@@ -156,7 +190,10 @@ function HomePage() {
         <section className="section section--split">
           <article className="panel--split">
             <div className="chip">PROYECTOS</div>
-            <p className="panel-intro">Proyectos personales, experimentos y sistemas varios.</p>
+            <p className="panel-intro">
+              Herramientas, laboratorios y utilidades construidas para aprender, automatizar y validar escenarios
+              técnicos reales.
+            </p>
             <div className="project-list">
               {projects.map((project) => (
                 <ProjectCard key={project.slug} project={project} />
@@ -166,7 +203,10 @@ function HomePage() {
 
           <article className="panel--split">
             <div className="chip">WRITE-UPS</div>
-            <p className="panel-intro">Una colección en crecimiento de walkthroughs prácticos.</p>
+            <p className="panel-intro">
+              Resoluciones técnicas documentadas con metodología, comandos, capturas y decisiones tomadas durante cada
+              compromiso.
+            </p>
             <div className="writeup-column-layout">
               <WriteupGroup title="WINDOWS" entries={windowsList} />
               <WriteupGroup title="LINUX" entries={linuxList} />
@@ -177,13 +217,14 @@ function HomePage() {
         <section className="section section--workshops">
           <div className="chip">TALLERES</div>
           <p className="panel-intro">
-            Espacio dedicado a laboratorios practicos y material didactico orientado al aprendizaje aplicado.
+            Talleres impartidos en diferentes eventos y organizaciones.
           </p>
           <div className="workshop-grid">
             {workshopPlaceholders.map((item, index) => (
               <article key={`${item.title}-${index}`} className="workshop-card">
                 <h3>{item.title}</h3>
                 <p>{item.summary}</p>
+                <span className="workshop-card__date">{item.date}</span>
               </article>
             ))}
           </div>
@@ -194,13 +235,10 @@ function HomePage() {
             <div className="chip">SOBRE MI</div>
             <div className="about-copy">
               <p>
-                Técnico Superior en Desarrollo de Aplicaciones Web (DAW), especializado en ciberseguridad y
-                actualmente en formación en el IES Rafael Alberti.
+                Técnico Superior en Desarrollo de Aplicaciones Web (DAW), especializado en ciberseguridad. (Curso de Especialización en Ciberseguridad en Entornos de las Tecnologías de la Información).
               </p>
-              <br />
               <p>
-                En este portfolio comparto proyectos prácticos y personales sobre seguridad, como hardening,
-                análisis forense y auditorías, aplicando lo aprendido de forma real.
+
               </p>
             </div>
 
@@ -239,29 +277,24 @@ function HomePage() {
             </div>
           </article>
 
-          <aside className="about-stack">
-            <div className="chip">FORMACIÓN</div>
-            <article className="panel--stack-card">
-              <h3>HACKING ETICO</h3>
-              <p>Identificación proactiva de vulnerabilidades y explotación controlada de sistemas.</p>
-            </article>
-            <article className="panel--stack-card">
-              <h3>FORENSICS</h3>
-              <p>Análisis de artefactos digitales y preservación de la cadena de custodia.</p>
-            </article>
-            <article className="panel--stack-card">
-              <h3>SYSTEM HARDENING</h3>
-              <p>Implementación de configuraciones críticas para reducir la superficie de ataque.</p>
-            </article>
-            <article className="panel--stack-card">
-              <h3>INCIDENT RESPONSE</h3>
-              <p>Gestión estratégica y contención de amenazas en entornos comprometidos.</p>
-            </article>
-            <article className="panel--stack-card">
-              <h3>OSINT</h3>
-              <p>Investigación y recolección de inteligencia mediante fuentes abiertas.</p>
-            </article>
+          <aside className="about-stack about-stack--vertical">
+            <div className="chip">FORMACION</div>
+            {formationItems.slice(0, 3).map((item) => (
+              <article key={item.title} className="panel--stack-card">
+                <h3>{item.title}</h3>
+                <p>{item.summary}</p>
+              </article>
+            ))}
           </aside>
+
+          <div className="about-stack about-stack--horizontal">
+            {formationItems.slice(3).map((item) => (
+              <article key={item.title} className="panel--stack-card">
+                <h3>{item.title}</h3>
+                <p>{item.summary}</p>
+              </article>
+            ))}
+          </div>
         </section>
       </div>
     </>

@@ -37,7 +37,7 @@ function WriteupsPage() {
 
         <div className="writeups-sidebar__header">
           <p>WRITE-UPS</p>
-          <span>{writeUps.length} DOCUMENTOS</span>
+          <span>{writeUps.length} DOCUMENTOS TECNICOS</span>
         </div>
 
         <div className="sidebar-scroll-area">
@@ -82,9 +82,15 @@ function WriteupsPage() {
               <div className="writeup-meta-top">
                 <span className="platform-chip">{activeWriteup.platform.toUpperCase()}</span>
                 <span className="year-label">{activeWriteup.year}</span>
+                <span className="year-label">{activeWriteup.readingMinutes} min lectura</span>
+                <span className="year-label">{activeWriteup.imageCount} capturas</span>
               </div>
               <h1>{activeWriteup.title}</h1>
             </header>
+
+            {activeWriteup.summary ? (
+              <p className="writeup-article__summary">{activeWriteup.summary}</p>
+            ) : null}
 
             <div className="writeup-article__body">
               <ReactMarkdown

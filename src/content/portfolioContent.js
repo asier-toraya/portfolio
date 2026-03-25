@@ -7,7 +7,7 @@ export const heroContent = {
   status: "ASIER",
   title: "Ciberseguridad y desarrollo de software.",
   summary:
-    "Portfolio enfocado en seguridad ofensiva, defensa y desarrollo de herramientas con un planteamiento tecnico, claro y orientado a resultados.",
+    "Portfolio centrado en seguridad ofensiva, defensa y desarrollo de herramientas propias, con un enfoque tecnico, aplicado y orientado a resultados reales.",
 };
 
 export const projects = [
@@ -55,15 +55,20 @@ export const projects = [
 
 export const workshopPlaceholders = [
   {
-    title: "Placeholder",
-    summary: "Espacio reservado para futuros talleres y laboratorios practicos.",
+    title: "Auditorias tecnicas de Ciberseguridad",
+    summary:
+      "Taller tecnico impartido para Security High School en su XI edicion, centrado en analisis de vulnerabilidades en entornos web.",
+    date: "Enero 2026 - IES FIDIANA, Córdoba",
   },
   {
-    title: "Placeholder",
-    summary: "Seccion preparada para incorporar contenido mas adelante.",
+    title: "Concienciacion en ciberseguridad y bienestar digital",
+    summary:
+      "Taller de concienciacion en ciberseguridad y bienestar digital dirigido a profesorado, alumnado y familias del IES Rafael Alberti (Cadiz).",
+    date: "Feb 2026 - IES Rafael Alberti, Cadiz",
   },
   {
-    title: "Placeholder",
-    summary: "Proximamente se anadiran talleres guiados y material aplicable.",
+    title: "CTF IES Rafael Alberti 2026",
+    summary: "Creacion de retos de captura la bandera para el CTF organizado por el IES Rafael Alberti.",
+    date: "Marzo 2026 - IES Rafael Alberti, Cadiz",
   },
 ];

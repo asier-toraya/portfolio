@@ -55,14 +55,31 @@ function normalizeEntry(path, rawFile) {
       return `![${alt}](${resolveImageUrl(filename)})`;
     });
 
+  const plainText = processedBody
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+    .replace(/\[[^\]]*\]\([^)]+\)/g, " ")
+    .replace(/[#>*_-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const wordCount = plainText ? plainText.split(" ").length : 0;
+  const readingMinutes = Math.max(1, Math.round(wordCount / 180));
+  const imageCount = (processedBody.match(/!\[[^\]]*\]\([^)]+\)/g) ?? []).length;
+
   return {
     slug,
+    href: `/writeups/${slug}`,
     title,
-    year: String(data.year ?? "2025"),
+    year: String(data.year ?? "2026"),
     summary: data.summary ?? "",
     tags,
     platform: platform,
     body: processedBody,
+    wordCount,
+    readingMinutes,
+    imageCount,
   };
 }
 
