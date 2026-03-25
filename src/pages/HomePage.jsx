@@ -135,6 +135,14 @@ function HomePage() {
     <>
       <ParticleBackground />
       <div className="portfolio-page">
+        <nav className="top-nav" aria-label="Secciones principales">
+          <a href="#experiencia">Experiencia</a>
+          <a href="#proyectos">Proyectos</a>
+          <a href="#writeups">Write-ups</a>
+          <a href="#talleres">Talleres</a>
+          <a href="#sobre-mi">Sobre mi</a>
+        </nav>
+
         <section className="section section--hero">
           <div className="hero-brand">
             <span className="brand-label">PORTFOLIO</span>
@@ -142,7 +150,7 @@ function HomePage() {
           </div>
         </section>
 
-        <section className="section section--experience">
+        <section id="experiencia" className="section section--experience">
           <div className="chip">EXPERIENCIA LABORAL</div>
 
           <div className="experience-list">
@@ -188,7 +196,7 @@ function HomePage() {
         </section>
 
         <section className="section section--split">
-          <article className="panel--split">
+          <article id="proyectos" className="panel--split">
             <div className="chip">PROYECTOS</div>
             <p className="panel-intro">
               Herramientas, laboratorios y utilidades construidas para aprender, automatizar y validar escenarios
@@ -201,7 +209,7 @@ function HomePage() {
             </div>
           </article>
 
-          <article className="panel--split">
+          <article id="writeups" className="panel--split">
             <div className="chip">WRITE-UPS</div>
             <p className="panel-intro">
               Resoluciones técnicas documentadas con metodología, comandos, capturas y decisiones tomadas durante cada
@@ -214,7 +222,7 @@ function HomePage() {
           </article>
         </section>
 
-        <section className="section section--workshops">
+        <section id="talleres" className="section section--workshops">
           <div className="chip">TALLERES</div>
           <p className="panel-intro">
             Talleres impartidos en diferentes eventos y organizaciones.
@@ -230,7 +238,7 @@ function HomePage() {
           </div>
         </section>
 
-        <section className="section section--about">
+        <section id="sobre-mi" className="section section--about">
           <article className="panel--about-main">
             <div className="chip">SOBRE MI</div>
             <div className="about-copy">
