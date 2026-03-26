@@ -1,7 +1,5 @@
 # Write-up Blaster
 
-**Autor**: Asier González
-
 ## Reconocimiento
 
 Empiezo con un escaneo bastante completo para ver qué servicios tiene expuestos la máquina:
@@ -141,3 +139,13 @@ Al comprobar el contexto, veo que ya estoy como `NT AUTHORITY\SYSTEM`.
 ## Resultado
 
 Con esto consigo comprometer la máquina: primero obtengo acceso por RDP reutilizando la pista de `Wade / Parzival`, y después escalo privilegios explotando `CVE-2019-1388` hasta llegar a `SYSTEM`.
+
+
+## Resumen de comandos directo a escalada
+
+1. rdp (remmina) -u Wade -p parzival IP
+2. hhupd.exe
+4. ver web del certificado
+3. Ctrl + S
+4. cmd en la ruta 
+5. whoami
