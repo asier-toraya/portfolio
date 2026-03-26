@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import DominoText from "../components/DominoText";
 import ProjectCard from "../components/ProjectCard";
 import WriteupPreviewCard from "../components/WriteupPreviewCard";
 import { projects, workshopPlaceholders } from "../content/portfolioContent";
@@ -73,7 +74,7 @@ function WriteupGroup({ title, entries }) {
         )}
       </div>
       <Link className="writeup-group__link" to="/writeups">
-        Explorar todos
+        <DominoText text="Explorar todos" />
       </Link>
     </div>
   );
@@ -138,7 +139,7 @@ function HomePage() {
         <nav className="top-nav" aria-label="Secciones principales">
           <a href="#experiencia">Experiencia</a>
           <a href="#proyectos">Proyectos</a>
-          <a href="#writeups">Write-ups</a>
+          <Link to="/writeups">Write-ups</Link>
           <a href="#talleres">Talleres</a>
           <a href="#sobre-mi">Sobre mi</a>
         </nav>
@@ -280,7 +281,9 @@ function HomePage() {
                 </a>
               </div>
               <div className="contact-email">
-                <a href="mailto:cybersec.asier@proton.me">cybersec.asier@proton.me</a>
+                <a href="mailto:cybersec.asier@proton.me">
+                  <DominoText text="cybersec.asier@proton.me" />
+                </a>
               </div>
             </div>
           </article>

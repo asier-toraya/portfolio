@@ -1,3 +1,5 @@
+import DominoText from "./DominoText";
+
 function ProjectCard({ project }) {
   return (
     <a className="project-card" href={project.href} target="_blank" rel="noreferrer">
@@ -7,7 +9,9 @@ function ProjectCard({ project }) {
           <h3>{project.title}</h3>
         </div>
         <p>{project.summary}</p>
-        <span className="project-card__cta">Ver repositorio</span>
+        <span className="project-card__cta">
+          <DominoText text="Ver repositorio" />
+        </span>
       </div>
     </a>
   );

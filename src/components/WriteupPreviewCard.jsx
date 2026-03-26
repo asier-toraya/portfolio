@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import DominoText from "./DominoText";
 
 function WriteupPreviewCard({ entry }) {
   const className = `writeup-card${entry.href ? " writeup-card--link" : ""}`;
@@ -7,7 +8,7 @@ function WriteupPreviewCard({ entry }) {
     <>
       <div className="writeup-card__body">
         <span className="writeup-card__label">{entry.platform}</span>
-        <h3>{entry.title}</h3>
+        <h3>{entry.href ? <DominoText text={entry.title} /> : entry.title}</h3>
         <p>{entry.summary}</p>
         <div className="writeup-card__stats">
           <span>{entry.readingMinutes} min</span>
