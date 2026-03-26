@@ -1,7 +1,6 @@
 import ipCalculatorLogo from "../../images/ip-calculator-logo.png";
 import nyxGuardLogo from "../../images/nyx-guard-logo-chrome.png";
 import nyxMonitorLogo from "../../images/nyx-monitor-logo.png";
-
 export const heroContent = {
   topLabel: "PORTFOLIO PERSONAL",
   status: "ASIER",
@@ -70,5 +69,19 @@ export const workshopPlaceholders = [
     title: "CTF IES Rafael Alberti 2026",
     summary: "Creacion de retos de captura la bandera para el CTF organizado por el IES Rafael Alberti.",
     date: "Marzo 2026 - IES Rafael Alberti, Cadiz",
+  },
+];
+
+export const reports = [
+  {
+    slug: "mirea-df",
+    title: "MIREA-DF",
+    stack: "DFIR / Metodologia / Evidencias",
+    summary:
+      "Metodologia propia para recogida, almacenamiento y analisis de evidencias digitales con enfoque operativo, legal y forense.",
+    href: "/reports/mirea-df",
+    image: null,
+    imageAlt: "Informe MIREA-DF",
+    ctaLabel: "Ver informe",
   },
 ];

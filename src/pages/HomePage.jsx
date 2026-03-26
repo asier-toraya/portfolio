@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import DominoText from "../components/DominoText";
 import ProjectCard from "../components/ProjectCard";
 import WriteupPreviewCard from "../components/WriteupPreviewCard";
-import { projects, workshopPlaceholders } from "../content/portfolioContent";
+import { projects, reports, workshopPlaceholders } from "../content/portfolioContent";
 import { getWriteUpsByPlatform } from "../content/technicalContent";
 
 function ParticleBackground() {
@@ -273,6 +273,19 @@ function HomePage() {
                 <p>{item.summary}</p>
                 <span className="workshop-card__date">{item.date}</span>
               </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="informes" className="section panel--split section--reports">
+          <div className="chip">INFORMES</div>
+          <p className="panel-intro">
+            Documentos tecnicos y metodologicos elaborados para formalizar procesos, criterio analitico y entregables
+            de ciberseguridad.
+          </p>
+          <div className="project-list">
+            {reports.map((report) => (
+              <ProjectCard key={report.slug} project={report} />
             ))}
           </div>
         </section>

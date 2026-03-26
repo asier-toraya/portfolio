@@ -10,7 +10,7 @@ function ProjectCard({ project }) {
         </div>
         <p>{project.summary}</p>
         <span className="project-card__cta">
-          <DominoText text="Ver repositorio" />
+          <DominoText text={project.ctaLabel ?? "Ver repositorio"} />
         </span>
       </div>
     </a>
