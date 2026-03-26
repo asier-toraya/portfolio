@@ -151,6 +151,7 @@ function HomePage() {
           <a href="#experiencia"><DominoText text="Experiencia" /></a>
           <a href="#proyectos"><DominoText text="Proyectos" /></a>
           <Link to="/writeups"><DominoText text="Write-ups" /></Link>
+          <Link to="/reports"><DominoText text="Informes" /></Link>
           <a href="#talleres"><DominoText text="Talleres" /></a>
           <a href="#sobre-mi"><DominoText text="Sobre mi" /></a>
         </nav>
