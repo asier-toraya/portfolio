@@ -1,10 +1,13 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import DominoText from "../components/DominoText";
 import ProjectCard from "../components/ProjectCard";
 import WriteupPreviewCard from "../components/WriteupPreviewCard";
 import { projects, reports, workshopPlaceholders } from "../content/portfolioContent";
 import { getWriteUpsByPlatform } from "../content/technicalContent";
+import cordobaWorkshopImage from "../../images/cordoba-1.jpeg";
+import concienciacionWorkshopImage from "../../images/concienciacion-1.jpeg";
+import ctfWorkshopImage from "../../images/ctf-1.jpeg";
 
 function ParticleBackground() {
   const particles = useMemo(() => {
@@ -67,6 +70,16 @@ function WaveBackground() {
   );
 }
 
+function CornerStripes() {
+  return (
+    <div className="corner-stripes" aria-hidden="true">
+      <span className="corner-stripes__bar corner-stripes__bar--1" />
+      <span className="corner-stripes__bar corner-stripes__bar--2" />
+      <span className="corner-stripes__bar corner-stripes__bar--3" />
+    </div>
+  );
+}
+
 function WriteupGroup({ title, entries }) {
   return (
     <div className="writeup-group">
@@ -91,6 +104,7 @@ function WriteupGroup({ title, entries }) {
 }
 
 function HomePage() {
+  const [activeWorkshop, setActiveWorkshop] = useState(null);
   const windowsWriteUps = getWriteUpsByPlatform("Windows");
   const linuxWriteUps = getWriteUpsByPlatform("Linux");
   const formationItems = [
@@ -141,10 +155,20 @@ function HomePage() {
 
   const windowsList = fillWriteupList(windowsWriteUps, "Windows", 3);
   const linuxList = fillWriteupList(linuxWriteUps, "Linux", 3);
+  const workshopItems = workshopPlaceholders.map((item, index) => ({
+    ...item,
+    image:
+      index === 0
+        ? cordobaWorkshopImage
+        : index === 1
+          ? concienciacionWorkshopImage
+          : ctfWorkshopImage,
+  }));
 
   return (
     <>
       <WaveBackground />
+      <CornerStripes />
       <ParticleBackground />
       <div className="portfolio-page">
         <nav className="top-nav" aria-label="Secciones principales">
@@ -268,12 +292,24 @@ function HomePage() {
             Talleres impartidos en diferentes eventos y organizaciones.
           </p>
           <div className="workshop-grid">
-            {workshopPlaceholders.map((item, index) => (
-              <article key={`${item.title}-${index}`} className="workshop-card">
-                <h3>{item.title}</h3>
-                <p>{item.summary}</p>
-                <span className="workshop-card__date">{item.date}</span>
-              </article>
+            {workshopItems.map((item, index) => (
+              <button
+                key={`${item.title}-${index}`}
+                type="button"
+                className="workshop-card workshop-card--button"
+                onClick={() => setActiveWorkshop(item)}
+              >
+                <div className="workshop-card__body">
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
+                </div>
+                <div className="workshop-card__footer">
+                  <span className="workshop-card__date">{item.date}</span>
+                  <span className="workshop-card__cta">
+                    <DominoText text="Ver imagen" />
+                  </span>
+                </div>
+              </button>
             ))}
           </div>
         </section>
@@ -360,6 +396,28 @@ function HomePage() {
           </div>
         </section>
       </div>
+
+      {activeWorkshop ? (
+        <div
+          className="workshop-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeWorkshop.title}
+          onClick={() => setActiveWorkshop(null)}
+        >
+          <div className="workshop-dialog__panel" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="workshop-dialog__close"
+              aria-label="Cerrar imagen"
+              onClick={() => setActiveWorkshop(null)}
+            >
+              Cerrar
+            </button>
+            <img src={activeWorkshop.image} alt={activeWorkshop.title} className="workshop-dialog__image" />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

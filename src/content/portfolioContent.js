@@ -80,6 +80,7 @@ export const reports = [
     summary:
       "Metodologia propia para recogida, almacenamiento y analisis de evidencias digitales con enfoque operativo, legal y forense.",
     href: "/reports/mirea-df",
+    repoHref: "https://github.com/asier-toraya/MIREA-DF-Metodologia",
     image: null,
     imageAlt: "Informe MIREA-DF",
     ctaLabel: "Ver informe",

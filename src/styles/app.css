@@ -72,6 +72,42 @@ body::before {
   pointer-events: none;
 }
 
+.corner-stripes {
+  position: fixed;
+  left: -140px;
+  bottom: -120px;
+  width: 520px;
+  height: 420px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.corner-stripes__bar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 560px;
+  height: 32px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  transform-origin: center;
+}
+
+.corner-stripes__bar--1 {
+  background: rgba(156, 214, 255, 0.34);
+  top: calc(50% - 45px);
+}
+
+.corner-stripes__bar--2 {
+  background: rgba(255, 220, 160, 0.34);
+  top: 50%;
+}
+
+.corner-stripes__bar--3 {
+  background: rgba(176, 240, 200, 0.34);
+  top: calc(50% + 45px);
+}
+
 .wave-background {
   position: fixed;
   inset: 0;
@@ -272,6 +308,7 @@ a {
   overflow: hidden;
 }
 
+/* here */
 .writeups-sidebar::after {
   content: "";
   position: absolute;
@@ -691,7 +728,7 @@ a {
   border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 20px;
   background: rgba(255, 255, 255, 0.16);
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .section--hero {
@@ -708,6 +745,7 @@ a {
 .writeup-article-container {
   background: var(--surface);
   border: 1px solid var(--stroke);
+
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all var(--ease-standard);
@@ -948,7 +986,32 @@ a {
 .project-card {
   padding: 14px 18px;
   display: grid;
+  border-radius: 4px;
   gap: 6px;
+  position: relative;
+}
+
+.project-card__main-link {
+  display: block;
+}
+
+.project-card__repo-link {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  z-index: 2;
+  color: var(--text-soft);
+  transition: color var(--ease-standard), transform var(--ease-standard);
+}
+
+.project-card__repo-link:hover {
+  color: var(--text);
+  transform: scale(1.2) rotate(10deg);
+}
+
+.project-card__repo-link svg {
+  width: 18px;
+  height: 18px;
 }
 
 .project-card__header {
@@ -985,6 +1048,7 @@ a {
   margin-top: 8px;
   display: inline-block;
   transition: all var(--ease-standard);
+  width: fit-content;
 }
 
 .project-card__cta:hover,
@@ -994,6 +1058,8 @@ a {
 
 .project-card:hover .domino-text__char,
 .project-card:focus-visible .domino-text__char,
+.workshop-card:hover .domino-text__char,
+.workshop-card:focus-visible .domino-text__char,
 .experience-link:hover .domino-text__char,
 .experience-link:focus-visible .domino-text__char,
 .top-nav a:hover .domino-text__char,
@@ -1186,6 +1252,8 @@ a {
 
   .project-card:hover .domino-text__char,
   .project-card:focus-visible .domino-text__char,
+  .workshop-card:hover .domino-text__char,
+  .workshop-card:focus-visible .domino-text__char,
   .experience-link:hover .domino-text__char,
   .experience-link:focus-visible .domino-text__char,
   .top-nav a:hover .domino-text__char,
@@ -1216,17 +1284,38 @@ a {
   border: none;
   display: flex;
   flex-direction: column;
+  gap: 14px;
+}
+
+.workshop-card--button {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.workshop-card__body {
+  display: grid;
+  gap: 8px;
 }
 
 .workshop-card h3 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 1rem;
   letter-spacing: -0.02em;
 }
 
+.workshop-card__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .workshop-card__date {
   display: inline-block;
-  margin-top: auto;
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
@@ -1236,10 +1325,68 @@ a {
 }
 
 .workshop-card p {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 0.88rem;
   line-height: 1.6;
   color: var(--text-soft);
+}
+
+.workshop-card__cta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: var(--text);
+  display: inline-block;
+  margin-left: auto;
+  text-align: right;
+}
+
+.workshop-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+.workshop-dialog__panel {
+  position: relative;
+  width: min(100%, 760px);
+  max-height: calc(100vh - 48px);
+  padding: 18px;
+  background: rgba(24, 24, 27, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.workshop-dialog__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.workshop-dialog__image {
+  display: block;
+  width: 100%;
+  max-height: min(70vh, 720px);
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .section--about {
