@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import DominoText from "../components/DominoText";
 import ProjectCard from "../components/ProjectCard";
@@ -80,6 +80,30 @@ function CornerStripes() {
   );
 }
 
+function SectionSeparator({ className = "" }) {
+  const dotColors = useMemo(() => {
+    const palette = [
+      "rgba(156, 214, 255, 0.92)",
+      "rgba(255, 220, 160, 0.92)",
+      "rgba(176, 240, 200, 0.92)",
+    ];
+
+    return Array.from({ length: 4 }, () => palette[Math.floor(Math.random() * palette.length)]);
+  }, []);
+
+  return (
+    <div className={`section-separator home-reveal${className ? ` ${className}` : ""}`} aria-hidden="true">
+      {dotColors.map((color, index) => (
+        <span
+          key={`${color}-${index}`}
+          className="section-separator__dot"
+          style={{ "--separator-index": index, color }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function WriteupGroup({ title, entries }) {
   return (
     <div className="writeup-group">
@@ -107,6 +131,41 @@ function HomePage() {
   const [activeWorkshop, setActiveWorkshop] = useState(null);
   const windowsWriteUps = getWriteUpsByPlatform("Windows");
   const linuxWriteUps = getWriteUpsByPlatform("Linux");
+
+  useEffect(() => {
+    const revealElements = Array.from(document.querySelectorAll(".home-reveal"));
+
+    if (revealElements.length === 0) {
+      return undefined;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      revealElements.forEach((element) => element.classList.add("is-visible"));
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.16,
+        rootMargin: "0px 0px -8% 0px",
+      },
+    );
+
+    revealElements.forEach((element) => observer.observe(element));
+
+    return () => observer.disconnect();
+  }, []);
+
   const formationItems = [
     {
       title: "Hacking Etico",
@@ -180,14 +239,16 @@ function HomePage() {
           <a href="#sobre-mi"><DominoText text="Sobre mi" /></a>
         </nav>
 
-        <section className="section section--hero">
+        <section className="section section--hero home-reveal home-reveal--hero">
           <div className="hero-brand">
             <span className="brand-label">PORTFOLIO</span>
-            <h1 className="brand-name">ASIER</h1>
+            <h1 className="brand-name">
+              <DominoText className="brand-name__domino" text="ASIER" />
+            </h1>
           </div>
         </section>
 
-        <section id="experiencia" className="section section--experience">
+        <section id="experiencia" className="section section--experience home-reveal">
           <div className="chip">EXPERIENCIA LABORAL</div>
 
           <div className="experience-list">
@@ -258,9 +319,10 @@ function HomePage() {
             </article>
           </div>
         </section>
+        <SectionSeparator />
 
         <section className="section section--split">
-          <article id="proyectos" className="panel--split">
+          <article id="proyectos" className="panel--split home-reveal">
             <div className="chip">PROYECTOS</div>
             <p className="panel-intro">
               Herramientas, laboratorios y utilidades construidas para aprender, automatizar y validar escenarios
@@ -272,8 +334,9 @@ function HomePage() {
               ))}
             </div>
           </article>
+          <SectionSeparator className="section-separator--split" />
 
-          <article id="writeups" className="panel--split">
+          <article id="writeups" className="panel--split home-reveal">
             <div className="chip">WRITE-UPS</div>
             <p className="panel-intro">
               Resoluciones técnicas documentadas con metodología, comandos, capturas y decisiones tomadas durante cada
@@ -285,8 +348,9 @@ function HomePage() {
             </div>
           </article>
         </section>
+        <SectionSeparator />
 
-        <section id="talleres" className="section section--workshops">
+        <section id="talleres" className="section section--workshops home-reveal">
           <div className="chip">TALLERES</div>
           <p className="panel-intro">
             Talleres impartidos en diferentes eventos y organizaciones.
@@ -313,8 +377,9 @@ function HomePage() {
             ))}
           </div>
         </section>
+        <SectionSeparator />
 
-        <section id="informes" className="section panel--split section--reports">
+        <section id="informes" className="section panel--split section--reports home-reveal">
           <div className="chip">INFORMES</div>
           <p className="panel-intro">
             Documentos tecnicos y metodologicos elaborados para formalizar procesos, criterio analitico y entregables
@@ -326,9 +391,10 @@ function HomePage() {
             ))}
           </div>
         </section>
+        <SectionSeparator />
 
         <section id="sobre-mi" className="section section--about">
-          <article className="panel--about-main">
+          <article className="panel--about-main home-reveal">
             <div className="chip">SOBRE MI</div>
             <div className="about-copy">
               <p>
@@ -376,7 +442,7 @@ function HomePage() {
             </div>
           </article>
 
-          <aside className="about-stack about-stack--vertical">
+          <aside className="about-stack about-stack--vertical home-reveal">
             <div className="chip">FORMACION</div>
             {formationItems.slice(0, 3).map((item) => (
               <article key={item.title} className="panel--stack-card">
@@ -386,7 +452,7 @@ function HomePage() {
             ))}
           </aside>
 
-          <div className="about-stack about-stack--horizontal">
+          <div className="about-stack about-stack--horizontal home-reveal">
             {formationItems.slice(3).map((item) => (
               <article key={item.title} className="panel--stack-card">
                 <h3>{item.title}</h3>
