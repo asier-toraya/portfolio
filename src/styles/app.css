@@ -73,6 +73,7 @@ body::before {
 }
 
 .corner-stripes {
+  opacity: 0.7;
   position: fixed;
   left: -140px;
   bottom: -120px;
