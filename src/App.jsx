@@ -10,7 +10,7 @@ function App() {
   const firstReportSlug = reports[0]?.slug;
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route

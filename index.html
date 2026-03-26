@@ -8,7 +8,20 @@
       content="Portfolio profesional de Asier, desarrollador de software especializado en ciberseguridad."
     />
     <title>Asier | Portfolio</title>
-    <link rel="icon" type="image/png" href="/template.png" />
+    <link rel="icon" type="image/png" href="%BASE_URL%template.png" />
+    <script>
+      (function (location) {
+        if (location.search[1] === "/") {
+          const decoded = location.search
+            .slice(1)
+            .split("&")
+            .map((segment) => segment.replace(/~and~/g, "&"))
+            .join("?");
+
+          window.history.replaceState(null, "", location.pathname.slice(0, -1) + decoded + location.hash);
+        }
+      })(window.location);
+    </script>
   </head>
   <body>
     <div id="root"></div>
