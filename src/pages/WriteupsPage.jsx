@@ -99,6 +99,9 @@ function WriteupsPage() {
                 <span className="year-label">{activeWriteup.year}</span>
                 <span className="year-label">{activeWriteup.readingMinutes} min lectura</span>
                 <span className="year-label">{activeWriteup.imageCount} capturas</span>
+                <a className="year-label year-label--github" href={activeWriteup.githubUrl} target="_blank" rel="noreferrer">
+                  ENLACE A GITHUB
+                </a>
               </div>
               <h1>{activeWriteup.title}</h1>
             </header>

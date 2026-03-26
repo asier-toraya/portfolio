@@ -81,6 +81,8 @@ function normalizeEntry(path, rawFile) {
   const wordCount = plainText ? plainText.split(" ").length : 0;
   const readingMinutes = Math.max(1, Math.round(wordCount / 180));
   const imageCount = (processedBody.match(/!\[[^\]]*\]\([^)]+\)/g) ?? []).length;
+  const writeupFolder = path.split("/").slice(2, -1).join("/");
+  const githubUrl = `https://github.com/asier-toraya/portfolio/tree/master/${writeupFolder}`;
 
   return {
     slug,
@@ -95,6 +97,7 @@ function normalizeEntry(path, rawFile) {
     wordCount,
     readingMinutes,
     imageCount,
+    githubUrl,
   };
 }
 
