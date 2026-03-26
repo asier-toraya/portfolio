@@ -57,6 +57,16 @@ function ParticleBackground() {
   );
 }
 
+function WaveBackground() {
+  return (
+    <div className="wave-background" aria-hidden="true">
+      <span className="wave-background__stripe wave-background__stripe--1" />
+      <span className="wave-background__stripe wave-background__stripe--2" />
+      <span className="wave-background__stripe wave-background__stripe--3" />
+    </div>
+  );
+}
+
 function WriteupGroup({ title, entries }) {
   return (
     <div className="writeup-group">
@@ -134,14 +144,15 @@ function HomePage() {
 
   return (
     <>
+      <WaveBackground />
       <ParticleBackground />
       <div className="portfolio-page">
         <nav className="top-nav" aria-label="Secciones principales">
-          <a href="#experiencia">Experiencia</a>
-          <a href="#proyectos">Proyectos</a>
-          <Link to="/writeups">Write-ups</Link>
-          <a href="#talleres">Talleres</a>
-          <a href="#sobre-mi">Sobre mi</a>
+          <a href="#experiencia"><DominoText text="Experiencia" /></a>
+          <a href="#proyectos"><DominoText text="Proyectos" /></a>
+          <Link to="/writeups"><DominoText text="Write-ups" /></Link>
+          <a href="#talleres"><DominoText text="Talleres" /></a>
+          <a href="#sobre-mi"><DominoText text="Sobre mi" /></a>
         </nav>
 
         <section className="section section--hero">
@@ -157,7 +168,16 @@ function HomePage() {
           <div className="experience-list">
             <article className="experience-item">
               <div className="experience-header">
-                <h3>Desarrollador web (Full Stack)</h3>
+                <h3>
+                  <a
+                    className="experience-link"
+                    href="https://linkedin.com/in/kasier"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <DominoText text="Desarrollador web (Full Stack)" />
+                  </a>
+                </h3>
                 <span className="experience-date">2024</span>
               </div>
               <p className="experience-company">Nytelweb</p>
@@ -171,7 +191,16 @@ function HomePage() {
 
             <article className="experience-item">
               <div className="experience-header">
-                <h3>Desarrollador web (Front End)</h3>
+                <h3>
+                  <a
+                    className="experience-link"
+                    href="https://linkedin.com/in/kasier"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <DominoText text="Desarrollador web (Front End)" />
+                  </a>
+                </h3>
                 <span className="experience-date">2022 - 2023</span>
               </div>
               <p className="experience-company">Bosonit</p>
@@ -183,7 +212,16 @@ function HomePage() {
 
             <article className="experience-item">
               <div className="experience-header">
-                <h3>Auxiliar de soporte TI y Artilleria</h3>
+                <h3>
+                  <a
+                    className="experience-link"
+                    href="https://linkedin.com/in/kasier"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <DominoText text="Auxiliar de soporte TI y Artilleria" />
+                  </a>
+                </h3>
                 <span className="experience-date">2017 - 2021</span>
               </div>
               <p className="experience-company">Ministerio de Defensa</p>
@@ -265,7 +303,7 @@ function HomePage() {
                     <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
                   </svg>
                 </a>
-                <a href="https://linkedin.com/in/katsier" target="_blank" rel="noreferrer" aria-label="LinkedIn">
+                <a href="https://linkedin.com/in/kasier" target="_blank" rel="noreferrer" aria-label="LinkedIn">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"

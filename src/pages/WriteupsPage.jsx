@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
 import { writeUps, getWriteUpsByPlatform } from "../content/technicalContent";
+import DominoText from "../components/DominoText";
 
 function isStandaloneCodeParagraph(children) {
   const normalizedChildren = Children.toArray(children).filter((child) => {
@@ -48,10 +49,17 @@ function WriteupsPage() {
                 <NavLink
                   key={entry.slug}
                   to={`/writeups/${entry.slug}`}
-                  className={({ isActive }) => `writeups-nav__item${isActive ? " is-active" : ""}`}
+                  className={({ isActive }) =>
+                    `writeups-nav__item writeups-nav__item--${entry.difficulty ?? "medium"}${isActive ? " is-active" : ""}`
+                  }
                 >
-                  <strong>{entry.title}</strong>
-                  <span>{entry.year}</span>
+                  <div className="writeups-nav__top">
+                    <strong><DominoText text={entry.title} /></strong>
+                    <span className="writeups-nav__year">{entry.year}</span>
+                  </div>
+                  <span className={`writeups-nav__difficulty writeups-nav__difficulty--${entry.difficulty ?? "medium"}`}>
+                    {String(entry.difficulty ?? "medium").toUpperCase()}
+                  </span>
                 </NavLink>
               ))}
             </nav>
@@ -64,10 +72,17 @@ function WriteupsPage() {
                 <NavLink
                   key={entry.slug}
                   to={`/writeups/${entry.slug}`}
-                  className={({ isActive }) => `writeups-nav__item${isActive ? " is-active" : ""}`}
+                  className={({ isActive }) =>
+                    `writeups-nav__item writeups-nav__item--${entry.difficulty ?? "medium"}${isActive ? " is-active" : ""}`
+                  }
                 >
-                  <strong>{entry.title}</strong>
-                  <span>{entry.year}</span>
+                  <div className="writeups-nav__top">
+                    <strong><DominoText text={entry.title} /></strong>
+                    <span className="writeups-nav__year">{entry.year}</span>
+                  </div>
+                  <span className={`writeups-nav__difficulty writeups-nav__difficulty--${entry.difficulty ?? "medium"}`}>
+                    {String(entry.difficulty ?? "medium").toUpperCase()}
+                  </span>
                 </NavLink>
               ))}
             </nav>

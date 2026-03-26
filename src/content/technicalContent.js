@@ -5,6 +5,17 @@ const writeUpImageFiles = import.meta.glob("../../writeups/**/*.{png,jpg,jpeg,gi
   import: "default",
 });
 
+const writeUpDifficultyBySlug = {
+  anthem: "easy",
+  blaster: "medium",
+  blue: "easy",
+  ice: "easy",
+  library: "medium",
+  relevant: "medium",
+  retro: "hard",
+  techsupport: "easy",
+};
+
 function slugFromPath(path) {
   // Path format: ../../writeups/Windows/Anthem/THM-Win-Anthem.md
   const parts = path.split("/");
@@ -40,6 +51,9 @@ function normalizeEntry(path, rawFile) {
   const platform = data.platform ?? platformFromPath(path);
   const title = data.title ?? slug;
   const tags = Array.isArray(data.tags) ? data.tags : [];
+  const normalizedDifficulty = String(
+    data.difficulty ?? writeUpDifficultyBySlug[String(slug).toLowerCase()] ?? "medium",
+  ).toLowerCase();
 
   const resolveImageUrl = (filename) => {
     const assetPath = `../../writeups/${platform}/${slug}/images/${filename}`;
@@ -73,6 +87,7 @@ function normalizeEntry(path, rawFile) {
     href: `/writeups/${slug}`,
     title,
     year: String(data.year ?? "2026"),
+    difficulty: normalizedDifficulty,
     summary: data.summary ?? "",
     tags,
     platform: platform,
