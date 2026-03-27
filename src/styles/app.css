@@ -146,9 +146,9 @@ body::before {
 
 .wave-background__stripe--1 {
   --wave-lane: calc(-1 * clamp(140px, 18vw, 240px));
-  --wave-fill: rgba(22, 58, 92, 0.2);
-  --wave-border-top: rgba(156, 214, 255, 0.2);
-  --wave-border-bottom: rgba(156, 214, 255, 0.12);
+  --wave-fill: rgba(104, 46, 46, 0.18);
+  --wave-border-top: rgba(170, 92, 86, 0.2);
+  --wave-border-bottom: rgba(170, 92, 86, 0.12);
   animation-delay: 0s;
 }
 
@@ -166,6 +166,14 @@ body::before {
   --wave-border-top: rgba(176, 240, 200, 0.18);
   --wave-border-bottom: rgba(176, 240, 200, 0.11);
   animation-delay: 3.6s;
+}
+
+.wave-background__stripe--4 {
+  --wave-lane: calc(2 * clamp(140px, 18vw, 240px));
+  --wave-fill: rgba(22, 58, 92, 0.2);
+  --wave-border-top: rgba(156, 214, 255, 0.2);
+  --wave-border-bottom: rgba(156, 214, 255, 0.12);
+  animation-delay: 5.4s;
 }
 
 .particle {

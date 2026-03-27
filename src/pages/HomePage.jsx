@@ -66,6 +66,7 @@ function WaveBackground() {
       <span className="wave-background__stripe wave-background__stripe--1" />
       <span className="wave-background__stripe wave-background__stripe--2" />
       <span className="wave-background__stripe wave-background__stripe--3" />
+      <span className="wave-background__stripe wave-background__stripe--4" />
     </div>
   );
 }
