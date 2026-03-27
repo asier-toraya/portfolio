@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import DominoText from "../components/DominoText";
 import ProjectCard from "../components/ProjectCard";
@@ -129,8 +129,23 @@ function WriteupGroup({ title, entries }) {
 
 function HomePage() {
   const [activeWorkshop, setActiveWorkshop] = useState(null);
+  const [isHeroBrandAnimating, setIsHeroBrandAnimating] = useState(false);
+  const heroBrandHoverTimeoutRef = useRef(null);
   const windowsWriteUps = getWriteUpsByPlatform("Windows");
   const linuxWriteUps = getWriteUpsByPlatform("Linux");
+
+  const triggerHeroBrandHover = () => {
+    if (isHeroBrandAnimating) {
+      return;
+    }
+
+    setIsHeroBrandAnimating(true);
+    window.clearTimeout(heroBrandHoverTimeoutRef.current);
+    heroBrandHoverTimeoutRef.current = window.setTimeout(() => {
+      setIsHeroBrandAnimating(false);
+      heroBrandHoverTimeoutRef.current = null;
+    }, 1200);
+  };
 
   useEffect(() => {
     const revealElements = Array.from(document.querySelectorAll(".home-reveal"));
@@ -164,6 +179,12 @@ function HomePage() {
     revealElements.forEach((element) => observer.observe(element));
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(heroBrandHoverTimeoutRef.current);
+    };
   }, []);
 
   const formationItems = [
@@ -242,7 +263,10 @@ function HomePage() {
         <section className="section section--hero home-reveal home-reveal--hero">
           <div className="hero-brand">
             <span className="brand-label">PORTFOLIO</span>
-            <h1 className="brand-name">
+            <h1
+              className={`brand-name${isHeroBrandAnimating ? " is-hover-animating" : ""}`}
+              onMouseEnter={triggerHeroBrandHover}
+            >
               <DominoText className="brand-name__domino" text="ASIER" />
             </h1>
           </div>

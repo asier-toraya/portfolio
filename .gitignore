@@ -18,3 +18,4 @@ pnpm-debug.log*
 .vite/
 .idea/
 .vscode/
+AGENTS.md

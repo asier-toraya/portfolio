@@ -4,11 +4,11 @@
   color-scheme: light;
   --bg: #dadada;
   --page-bg:
-    radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.9) 0%, transparent 60%),
-    radial-gradient(at 100% 0%, rgba(200, 200, 200, 1) 0%, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.6) 0%, transparent 60%),
-    radial-gradient(at 0% 100%, rgba(180, 180, 180, 1) 0%, transparent 50%),
-    linear-gradient(135deg, #f0f0f0 0%, #616161 100%);
+    radial-gradient(at 0% 0%, rgba(98, 156, 220, 0.68) 0%, transparent 56%),
+    radial-gradient(at 100% 0%, rgba(138, 176, 221, 0.56) 0%, transparent 48%),
+    radial-gradient(at 100% 100%, rgba(240, 246, 255, 0.42) 0%, transparent 58%),
+    radial-gradient(at 0% 100%, rgba(88, 121, 166, 0.44) 0%, transparent 48%),
+    linear-gradient(135deg, #e8eff8 0%, #50647f 100%);
   --surface: rgba(255, 255, 255, 0.7);
   --surface-strong: #d4d4d4;
   --surface-dark: #18181b;
@@ -60,7 +60,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  opacity: 0.08;
+  opacity: 0.11;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
@@ -544,10 +544,12 @@ a {
   background: rgba(255, 255, 255, 0.2);
   scrollbar-width: thin;
   scrollbar-color: var(--stroke) transparent;
+  display: flex;
+  justify-content: center;
 }
 
 .writeup-article {
-  max-width: 800px;
+  width: min(100%, 960px);
   margin: 0 auto;
   padding: 80px 40px;
 }
@@ -592,7 +594,7 @@ a {
 }
 
 .writeup-article__summary {
-  max-width: 720px;
+  max-width: 860px;
   margin: 0 0 32px;
   font-size: 1rem;
   line-height: 1.6;
@@ -881,8 +883,7 @@ a {
   animation-delay: calc(280ms + var(--domino-index, 0) * 72ms);
 }
 
-.brand-name:hover .domino-text__char,
-.brand-name:focus-within .domino-text__char {
+.brand-name.is-hover-animating .domino-text__char {
   animation: hero-domino-hover 860ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--domino-index, 0) * 72ms);
 }
@@ -913,19 +914,6 @@ a {
     linear-gradient(135deg, transparent 0 52%, rgba(156, 214, 255, 0.52) 52% 58%, transparent 58% 100%),
     linear-gradient(135deg, transparent 0 58%, rgba(255, 220, 160, 0.48) 58% 64%, transparent 64% 100%),
     linear-gradient(135deg, transparent 0 58%, rgba(176, 240, 200, 0.48) 58% 64%, transparent 64% 100%);
-}
-
-.panel--stack-card::after {
-  content: "";
-  position: absolute;
-  right: -18px;
-  bottom: 2px;
-  width: 108px;
-  height: 84px;
-  pointer-events: none;
-  opacity: 1;
-  background:
-    linear-gradient(135deg, transparent 0 64%, rgba(255, 220, 160, 0.48) 64% 70%, transparent 70% 100%);
 }
 
 .experience-header {
@@ -1632,9 +1620,23 @@ a {
   gap: 8px;
   background: var(--surface);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 0;
   border-radius: 6px;
   position: relative;
   overflow: hidden;
+}
+
+.panel--stack-card::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -1px;
+  width: 10px;
+  pointer-events: none;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  background: linear-gradient(180deg, rgba(255, 220, 160, 0.84) 0%, rgba(255, 220, 160, 0.56) 100%);
 }
 
 .panel--stack-card h3 {
