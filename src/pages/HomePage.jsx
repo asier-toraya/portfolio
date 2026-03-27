@@ -76,6 +76,7 @@ function CornerStripes() {
       <span className="corner-stripes__bar corner-stripes__bar--1" />
       <span className="corner-stripes__bar corner-stripes__bar--2" />
       <span className="corner-stripes__bar corner-stripes__bar--3" />
+      <span className="corner-stripes__bar corner-stripes__bar--4" />
     </div>
   );
 }
@@ -263,12 +264,15 @@ function HomePage() {
         <section className="section section--hero home-reveal home-reveal--hero">
           <div className="hero-brand">
             <span className="brand-label">PORTFOLIO</span>
-            <h1
-              className={`brand-name${isHeroBrandAnimating ? " is-hover-animating" : ""}`}
-              onMouseEnter={triggerHeroBrandHover}
-            >
-              <DominoText className="brand-name__domino" text="ASIER" />
-            </h1>
+            <div className="brand-name-lockup">
+              <h1
+                className={`brand-name${isHeroBrandAnimating ? " is-hover-animating" : ""}`}
+                onMouseEnter={triggerHeroBrandHover}
+              >
+                <DominoText className="brand-name__domino" text="ASIER" />
+              </h1>
+              <span className="brand-signature">GONZALEZ AIT-ABDESSLAM</span>
+            </div>
           </div>
         </section>
 
