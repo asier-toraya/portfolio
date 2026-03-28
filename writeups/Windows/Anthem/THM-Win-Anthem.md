@@ -6,9 +6,11 @@
 
 Empiezo con un escaneo básico para identificar puertos y servicios:
 
-`nmap -sC -sV -p- -Pn IP`
+```bash
+nmap -sC -sV -p- -Pn IP
+```
 
-Puertos encontrados:
+Los puertos que encuentro son:
 
 - `80/tcp` (HTTP)
 - `3389/tcp` (RDP)
@@ -17,9 +19,11 @@ Puertos encontrados:
 
 Después enumero directorios web con `gobuster`:
 
-`gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt`
+```bash
+gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt
+```
 
-Directorios interesantes encontrados:
+Las rutas más interesantes son:
 
 - `robots.txt`
 - `sitemap`
@@ -28,45 +32,45 @@ Directorios interesantes encontrados:
 
 ## Enumeración
 
-Al revisar `robots.txt`, encuentro dos pistas importantes:
+Al revisar `robots.txt`, me encuentro dos pistas bastante claras:
 
-- Posible contraseña: `UmbracoIsTheBest!`
-- Ruta interesante: `/umbraco/`
+- Una posible contraseña: `UmbracoIsTheBest!`
+- La ruta `/umbraco/`
 
 ![robots.txt](images/robots.png)
 
-Después inspecciono la web principal. En uno de los artículos, `We are hiring`, aparece una usuaria llamada `Jane Doe` y se indica su email:
+Después inspecciono la web principal. En el artículo `We are hiring` aparece una usuaria llamada `Jane Doe` y se muestra su correo:
 
 - `JD@anthem.com`
 
 ![JD](images/JD.png)
 
-En otro artículo comentan que el administrador escribe poesía. Buscando el poema en Google, veo que el autor es `Solomon Grundy`, así que deduzco que sus iniciales y posible usuario son:
+En otro artículo comentan que el administrador escribe poesía. Buscando esa referencia, veo que el autor es `Solomon Grundy`, así que deduzco que el usuario probablemente sea:
 
 - `SG`
 - `SG@anthem.com`
 
 ## Explotación
 
-Con la contraseña de `robots.txt` pruebo acceso al panel de Umbraco:
+Con la contraseña encontrada en `robots.txt`, pruebo acceso al panel de Umbraco:
 
 - Usuario: `SG`
 - Contraseña: `UmbracoIsTheBest!`
 
-Accedo a `/umbraco`, pero desde ahí no encuentro una vía directa para comprometer el sistema.
+Consigo entrar en `/umbraco`, pero desde ahí no encuentro una vía directa para comprometer el sistema.
 
 ![login](images/login.png)
 
-Como el puerto `3389` estaba abierto, pruebo acceso por RDP. El formato `SG@anthem.com` no funciona, pero con el usuario `SG` sí consigo entrar:
+Como el puerto `3389` también está abierto, pruebo acceso por RDP. El formato `SG@anthem.com` no me funciona, pero con el usuario `SG` sí consigo entrar:
 
 - Usuario RDP: `SG`
 - Contraseña: `UmbracoIsTheBest!`
 
 ![remmina](images/remmina.png)
 
-## Post-Explotación
+## Post-explotación
 
-Una vez dentro del sistema, reviso el contenido del equipo y encuentro una carpeta oculta llamada:
+Una vez dentro del sistema, empiezo a revisar el contenido del equipo y encuentro una carpeta oculta llamada:
 
 - `backups`
 
@@ -74,11 +78,11 @@ Dentro hay un archivo llamado:
 
 - `restore`
 
-Pero inicialmente no tengo permisos para abrirlo.
+Al principio no tengo permisos para abrirlo.
 
 ![backups](images/backups.png)
 
-La solución consiste en modificar los permisos del archivo desde:
+La forma de resolverlo es modificar los permisos del archivo desde:
 
 - `Propiedades > Security > Edit > Add`
 
@@ -88,7 +92,7 @@ Ahí añado el usuario `SG`, pulso en `Check Names` y le doy permisos de lectura
 ![checknames](images/checknames.png)
 ![useradded](images/useradded.png)
 
-Después ya puedo abrir el archivo `restore`, donde encuentro una nueva credencial:
+Después ya puedo abrir `restore`, y dentro aparece una nueva credencial:
 
 - `ChangeMeBaby1MoreTime`
 
@@ -96,12 +100,25 @@ Después ya puedo abrir el archivo `restore`, donde encuentro una nueva credenci
 
 ## Escalada de privilegios
 
-Entiendo que esa contraseña puede pertenecer al administrador. Pruebo a abrir una PowerShell como administrador e introduzco esa contraseña.
+Entiendo que esa contraseña puede pertenecer al administrador. Pruebo a abrir una PowerShell con privilegios elevados e introduzco esa credencial.
 
-La autenticación funciona y consigo una PowerShell elevada.
+La autenticación funciona y consigo una PowerShell como administrador.
 
 ![adminps](images/adminps.png)
 
 ## Resultado
 
-La máquina se compromete usando credenciales expuestas en `robots.txt` para acceder primero a Umbraco y luego por RDP como `SG`. Después, modificando permisos sobre el archivo `restore`, recupero la contraseña `ChangeMeBaby1MoreTime`, que me permite abrir una PowerShell como administrador.
+La máquina se compromete reutilizando una contraseña expuesta en `robots.txt`. Primero accedo a Umbraco y luego por RDP como `SG`. Después, al modificar los permisos sobre `restore`, recupero una credencial adicional que me permite abrir una PowerShell elevada.
+
+## Resumen de comandos directo a SYSTEM/root
+
+1. `nmap -sC -sV -p- -Pn IP`
+2. `gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt`
+3. Revisar `http://IP/robots.txt` y extraer `UmbracoIsTheBest!`
+4. Identificar el usuario `SG` en la web
+5. `xfreerdp /u:SG /p:'UmbracoIsTheBest!' /v:IP`
+6. En la víctima: ir a `C:\backups\restore`, añadir permisos al usuario `SG` y leer el archivo
+7. Recuperar la contraseña `ChangeMeBaby1MoreTime`
+8. `runas /user:Administrator powershell`
+9. Introducir `ChangeMeBaby1MoreTime`
+10. `whoami`
