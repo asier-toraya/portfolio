@@ -22,7 +22,7 @@
   --radius-md: 0px;
   --page-width: min(100%, 1100px);
   --gap: 40px;
-  --section-space: 76px;
+  --section-space: 46px;
   --section-inner-space: 32px;
   --ease-standard: 250ms cubic-bezier(0.16, 1, 0.3, 1);
   --ease-domino: 420ms cubic-bezier(0.22, 1, 0.36, 1);
