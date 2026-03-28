@@ -12,13 +12,23 @@ export const heroContent = {
 export const projects = [
   {
     slug: "nyx-monitor",
-    title: "Nyx-Monitor",
+    title: "PS-Monitor",
     stack: "React / Tauri / Rust / Windows",
     summary:
       "Aplicacion de escritorio para observabilidad de procesos y deteccion heuristica de actividad sospechosa en tiempo real.",
     href: "https://github.com/asier-toraya/Nyx-Monitor",
     image: nyxMonitorLogo,
     imageAlt: "Logo de Nyx-Monitor",
+  },
+  {
+    slug: "nyx-network-monitor",
+    title: "Net-Sentinel",
+    stack: "React / TypeScript / Tauri / Rust / SQLite",
+    summary:
+      "Aplicacion de escritorio para monitorizacion de conexiones de red, clasificacion de riesgo y analisis contextual de procesos en Windows.",
+    href: "https://github.com/asier-toraya/Nyx-Network-Monitor",
+    image: nyxMonitorLogo,
+    imageAlt: "Logo de Nyx Net Sentinel",
   },
   {
     slug: "nyx-guard",
