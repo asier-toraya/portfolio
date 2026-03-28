@@ -567,19 +567,26 @@ a {
 
 .writeups-viewer {
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.18)),
+    rgba(255, 255, 255, 0.2);
   scrollbar-width: thin;
   scrollbar-color: var(--stroke) transparent;
   display: flex;
   justify-content: center;
   position: relative;
   z-index: 1;
+  margin: 0 18px;
+  border: 1px solid rgba(25, 20, 16, 0.14);
+  box-shadow:
+    0 18px 42px rgba(38, 24, 14, 0.08);
+  min-height: 0;
 }
 
 .writeup-article {
   width: min(100%, 960px);
   margin: 0 auto;
-  padding: 80px 40px;
+  padding: 80px 40px 108px;
 }
 
 .writeup-article__header {
@@ -633,6 +640,7 @@ a {
   font-size: 1.1rem;
   line-height: 1.55;
   color: var(--text-soft);
+  padding-bottom: 40px;
 }
 
 .writeup-article__body>*:first-child {
@@ -1741,6 +1749,7 @@ a {
 
   .writeups-viewer {
     height: auto;
+    margin: 0 18px;
   }
 
   .about-stack--horizontal {
