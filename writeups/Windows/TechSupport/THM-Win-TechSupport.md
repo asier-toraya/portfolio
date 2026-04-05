@@ -118,7 +118,6 @@ Busco si esa versión tiene alguna vulnerabilidad conocida y encuentro un RCE. A
 exploit/multi/http/subrion_cms_file_upload_rce
 ```
 
-![subrion-rce](images/subrion-rce.png)
 ![rce-1](images/rce-1.png)
 ![rce-2](images/rce-2.png)
 
