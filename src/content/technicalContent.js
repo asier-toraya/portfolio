@@ -6,13 +6,22 @@ const writeUpImageFiles = import.meta.glob("../../writeups/**/*.{png,jpg,jpeg,gi
 });
 
 const writeUpDifficultyBySlug = {
+  agentsudo: "easy",
   anthem: "easy",
+  basicpentesting: "easy",
   blaster: "medium",
   blue: "easy",
+  bountyhacker: "easy",
+  brooklynninenine: "easy",
+  easypeasy: "easy",
   ice: "easy",
+  kenobi: "easy",
   library: "medium",
+  poster: "easy",
   relevant: "medium",
+  rootme: "easy",
   retro: "hard",
+  startup: "easy",
   techsupport: "easy",
 };
 
