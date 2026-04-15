@@ -23,6 +23,7 @@ const writeUpDifficultyBySlug = {
   retro: "hard",
   startup: "easy",
   techsupport: "easy",
+  gamingserver: "medium",
 };
 
 function slugFromPath(path) {
