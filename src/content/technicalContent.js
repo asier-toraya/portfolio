@@ -25,6 +25,7 @@ const writeUpDifficultyBySlug = {
   techsupport: "medium",
   gamingserver: "medium",
   lazyadmin: "medium",
+  ignite: "easy",
 };
 
 function slugFromPath(path) {
