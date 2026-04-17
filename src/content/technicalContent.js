@@ -27,6 +27,8 @@ const writeUpDifficultyBySlug = {
   lazyadmin: "medium",
   ignite: "easy",
   wgel: "medium",
+  yearoftherabbit: "medium",
+  lianyu: "hard",
 };
 
 function slugFromPath(path) {
